@@ -16,81 +16,82 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/auth");
+  const fetchData = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/auth");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // Fetch profile
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+      setProfile(profileData);
+
+      // Fetch cycle data
+      const { data: cycleInfo } = await supabase
+        .from("cycle_data")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (!cycleInfo) {
+        navigate("/onboarding");
         return;
       }
 
-      try {
-        // Fetch profile
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .maybeSingle();
+      // Fetch recent period logs to refine prediction
+      const { data: logs } = await supabase
+        .from("period_logs")
+        .select("start_date")
+        .eq("user_id", session.user.id)
+        .order("start_date", { ascending: false })
+        .limit(6);
 
-        setProfile(profileData);
+      let lastStart = cycleInfo.last_period_date;
+      let averageCycle = cycleInfo.average_cycle_length;
 
-        // Fetch cycle data
-        const { data: cycleInfo } = await supabase
-          .from("cycle_data")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
-
-        if (!cycleInfo) {
-          navigate("/onboarding");
-          return;
-        }
-
-        // Fetch recent period logs to refine prediction
-        const { data: logs } = await supabase
-          .from("period_logs")
-          .select("start_date")
-          .eq("user_id", session.user.id)
-          .order("start_date", { ascending: false })
-          .limit(6);
-
-        let lastStart = cycleInfo.last_period_date;
-        let averageCycle = cycleInfo.average_cycle_length;
-
-        if (logs && logs.length > 0) {
-          lastStart = logs[0].start_date;
-          if (logs.length > 1) {
-            const gaps: number[] = [];
-            for (let i = 0; i < logs.length - 1; i++) {
-              const gap = daysBetween(logs[i].start_date, logs[i + 1].start_date);
-              if (!isNaN(gap) && gap > 10 && gap < 60) gaps.push(gap);
-            }
-            if (gaps.length) {
-              averageCycle = Math.round(gaps.reduce((a, b) => a + b, 0) / gaps.length);
-            }
+      if (logs && logs.length > 0) {
+        lastStart = logs[0].start_date;
+        if (logs.length > 1) {
+          const gaps: number[] = [];
+          for (let i = 0; i < logs.length - 1; i++) {
+            const gap = daysBetween(logs[i].start_date, logs[i + 1].start_date);
+            if (!isNaN(gap) && gap > 10 && gap < 60) gaps.push(gap);
+          }
+          if (gaps.length) {
+            averageCycle = Math.round(gaps.reduce((a, b) => a + b, 0) / gaps.length);
           }
         }
-
-        const refined = {
-          ...cycleInfo,
-          last_period_date: lastStart,
-          average_cycle_length: averageCycle,
-        };
-
-        setCycleData(refined);
-        calculateCyclePhase(refined);
-      } catch (error: any) {
-        toast({
-          title: "Error loading data",
-          description: error.message,
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
       }
-    };
 
-    checkAuth();
+      const refined = {
+        ...cycleInfo,
+        last_period_date: lastStart,
+        average_cycle_length: averageCycle,
+      };
+
+      setCycleData(refined);
+      calculateCyclePhase(refined);
+    } catch (error: any) {
+      toast({
+        title: "Error loading data",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -100,7 +101,19 @@ const Dashboard = () => {
       }
     );
 
-    return () => subscription.unsubscribe();
+    // Refetch data when page becomes visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [navigate, toast]);
 
   // UTC helpers to avoid timezone off-by-one errors
