@@ -1,0 +1,198 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import Navigation from "@/components/Navigation";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+
+const Profile = () => {
+  const [profile, setProfile] = useState<any>(null);
+  const [cycleData, setCycleData] = useState<any>(null);
+  const [editing, setEditing] = useState(false);
+  const [age, setAge] = useState("");
+  const [contraception, setContraception] = useState("");
+  const [cycleLength, setCycleLength] = useState("");
+  const [periodLength, setPeriodLength] = useState("");
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const loadData = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth");
+        return;
+      }
+
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
+
+      const { data: cycleInfo } = await supabase
+        .from("cycle_data")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .single();
+
+      setProfile(profileData);
+      setCycleData(cycleInfo);
+      setAge(profileData?.age?.toString() || "");
+      setContraception(profileData?.contraception_use || "");
+      setCycleLength(cycleInfo?.average_cycle_length?.toString() || "");
+      setPeriodLength(cycleInfo?.average_period_length?.toString() || "");
+    };
+
+    loadData();
+  }, [navigate]);
+
+  const handleSave = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase
+        .from("profiles")
+        .update({
+          age: parseInt(age),
+          contraception_use: contraception,
+        })
+        .eq("id", user.id);
+
+      await supabase
+        .from("cycle_data")
+        .update({
+          average_cycle_length: parseInt(cycleLength),
+          average_period_length: parseInt(periodLength),
+        })
+        .eq("user_id", user.id);
+
+      toast({
+        title: "Saved!",
+        description: "Your profile has been updated, darling! 💜",
+      });
+      setEditing(false);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
+  if (!profile) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 pb-20">
+      <div className="max-w-md mx-auto p-4 pt-8">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-6">
+          Your Profile ✨
+        </h1>
+
+        <Card className="p-6 border-primary/20 mb-4">
+          <div className="space-y-4">
+            <div>
+              <Label>Display Name</Label>
+              <p className="text-lg font-medium">{profile.display_name}</p>
+            </div>
+
+            <div>
+              <Label>Age</Label>
+              {editing ? (
+                <Input
+                  type="number"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  className="mt-1"
+                />
+              ) : (
+                <p className="text-lg font-medium">{age || "Not set"}</p>
+              )}
+            </div>
+
+            <div>
+              <Label>Contraception</Label>
+              {editing ? (
+                <Input
+                  value={contraception}
+                  onChange={(e) => setContraception(e.target.value)}
+                  className="mt-1"
+                />
+              ) : (
+                <p className="text-lg font-medium">{contraception || "None"}</p>
+              )}
+            </div>
+
+            <div>
+              <Label>Average Cycle Length</Label>
+              {editing ? (
+                <Input
+                  type="number"
+                  value={cycleLength}
+                  onChange={(e) => setCycleLength(e.target.value)}
+                  className="mt-1"
+                />
+              ) : (
+                <p className="text-lg font-medium">{cycleLength} days</p>
+              )}
+            </div>
+
+            <div>
+              <Label>Average Period Length</Label>
+              {editing ? (
+                <Input
+                  type="number"
+                  value={periodLength}
+                  onChange={(e) => setPeriodLength(e.target.value)}
+                  className="mt-1"
+                />
+              ) : (
+                <p className="text-lg font-medium">{periodLength} days</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-2 mt-6">
+            {editing ? (
+              <>
+                <Button onClick={handleSave} className="flex-1 bg-gradient-to-r from-primary to-accent">
+                  Save Changes
+                </Button>
+                <Button onClick={() => setEditing(false)} variant="outline" className="flex-1">
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button onClick={() => setEditing(true)} className="w-full bg-gradient-to-r from-primary to-accent">
+                Edit Profile
+              </Button>
+            )}
+          </div>
+        </Card>
+
+        <Button
+          onClick={handleLogout}
+          variant="outline"
+          className="w-full border-destructive text-destructive hover:bg-destructive hover:text-white"
+        >
+          Sign Out
+        </Button>
+      </div>
+      <Navigation />
+    </div>
+  );
+};
+
+export default Profile;
