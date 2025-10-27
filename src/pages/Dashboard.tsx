@@ -71,17 +71,19 @@ const Dashboard = () => {
   }, [navigate, toast]);
 
   const calculateCyclePhase = (data: any) => {
-    const lastPeriod = new Date(data.last_period_date);
+    const lastPeriod = new Date(data.last_period_date + 'T00:00:00');
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     const daysSinceLastPeriod = Math.floor(
       (today.getTime() - lastPeriod.getTime()) / (1000 * 60 * 60 * 24)
     );
 
     const cycleDay = daysSinceLastPeriod % data.average_cycle_length;
 
-    if (cycleDay <= data.average_period_length) {
+    if (cycleDay < data.average_period_length) {
       setCurrentPhase("Period");
-    } else if (cycleDay <= 14) {
+    } else if (cycleDay < 14) {
       setCurrentPhase("Follicular Phase");
     } else if (cycleDay <= 16) {
       setCurrentPhase("Ovulation");

@@ -33,12 +33,17 @@ const CalendarView = () => {
   const isPeriodDay = (date: Date) => {
     if (!cycleData) return false;
 
-    const lastPeriod = new Date(cycleData.last_period_date);
-    const daysSinceLastPeriod = Math.floor(
-      (date.getTime() - lastPeriod.getTime()) / (1000 * 60 * 60 * 24)
+    const lastPeriod = new Date(cycleData.last_period_date + 'T00:00:00');
+    const checkDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    
+    const daysDiff = Math.floor(
+      (checkDate.getTime() - lastPeriod.getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    const cycleDay = daysSinceLastPeriod % cycleData.average_cycle_length;
+    // Check if this day falls within any period (past or future)
+    if (daysDiff < 0) return false; // Before the last recorded period
+    
+    const cycleDay = daysDiff % cycleData.average_cycle_length;
     return cycleDay >= 0 && cycleDay < cycleData.average_period_length;
   };
 
