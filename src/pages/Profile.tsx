@@ -6,7 +6,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { usePremium } from "@/hooks/use-premium";
+import { Crown, Sparkles } from "lucide-react";
 
 const Profile = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -18,6 +21,7 @@ const Profile = () => {
   const [periodLength, setPeriodLength] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isPremium, loading: premiumLoading } = usePremium();
 
   useEffect(() => {
     const loadData = async () => {
@@ -97,9 +101,38 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 pb-20">
       <div className="max-w-md mx-auto p-4 pt-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-6">
-          Your Profile ✨
-        </h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Your Profile ✨
+          </h1>
+          {isPremium && (
+            <Badge className="bg-gradient-to-r from-primary to-accent">
+              <Crown className="w-3 h-3 mr-1" />
+              Premium
+            </Badge>
+          )}
+        </div>
+
+        {!premiumLoading && !isPremium && (
+          <Card className="p-4 mb-4 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="font-medium">Upgrade to Premium</p>
+                  <p className="text-xs text-muted-foreground">Unlock all features</p>
+                </div>
+              </div>
+              <Button
+                onClick={() => navigate("/subscription")}
+                size="sm"
+                className="bg-gradient-to-r from-primary to-accent"
+              >
+                Upgrade
+              </Button>
+            </div>
+          </Card>
+        )}
 
         <Card className="p-6 border-primary/20 mb-4">
           <div className="space-y-4">
