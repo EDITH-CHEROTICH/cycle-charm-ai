@@ -4,10 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
+import { PeriodLogger } from "@/components/PeriodLogger";
+import { PeriodHistory } from "@/components/PeriodHistory";
+import { SymptomTracker } from "@/components/SymptomTracker";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const CalendarView = () => {
   const [cycleData, setCycleData] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +33,11 @@ const CalendarView = () => {
     };
 
     checkAuth();
-  }, [navigate]);
+  }, [navigate, refreshTrigger]);
+
+  const handlePeriodLogged = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   const isPeriodDay = (date: Date) => {
     if (!cycleData) return false;
@@ -54,39 +63,59 @@ const CalendarView = () => {
           Your Cycle Calendar 📅
         </h1>
 
-        <Card className="p-6 border-primary/20 mb-4">
-          <div className="flex justify-center">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              className="rounded-md"
-              modifiers={{
-                period: (date) => isPeriodDay(date),
-              }}
-              modifiersStyles={{
-                period: {
-                  backgroundColor: "hsl(var(--primary))",
-                  color: "white",
-                  fontWeight: "bold",
-                },
-              }}
-            />
-          </div>
-        </Card>
+        <Tabs defaultValue="calendar" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="calendar">Calendar</TabsTrigger>
+            <TabsTrigger value="log">Log Period</TabsTrigger>
+            <TabsTrigger value="symptoms">Symptoms</TabsTrigger>
+          </TabsList>
 
-        <Card className="p-4 border-primary/20">
-          <div className="flex items-center gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-primary"></div>
-              <span>Period Days</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-accent/30"></div>
-              <span>Other Days</span>
-            </div>
-          </div>
-        </Card>
+          <TabsContent value="calendar" className="space-y-4">
+            <Card className="p-6 border-primary/20">
+              <div className="flex justify-center">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  className="rounded-md"
+                  modifiers={{
+                    period: (date) => isPeriodDay(date),
+                  }}
+                  modifiersStyles={{
+                    period: {
+                      backgroundColor: "hsl(var(--primary))",
+                      color: "white",
+                      fontWeight: "bold",
+                    },
+                  }}
+                />
+              </div>
+            </Card>
+
+            <Card className="p-4 border-primary/20">
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-primary"></div>
+                  <span>Period Days</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-accent/30"></div>
+                  <span>Other Days</span>
+                </div>
+              </div>
+            </Card>
+
+            <PeriodHistory refreshTrigger={refreshTrigger} />
+          </TabsContent>
+
+          <TabsContent value="log" className="space-y-4">
+            <PeriodLogger onPeriodLogged={handlePeriodLogged} />
+          </TabsContent>
+
+          <TabsContent value="symptoms">
+            <SymptomTracker />
+          </TabsContent>
+        </Tabs>
       </div>
       <Navigation />
     </div>
