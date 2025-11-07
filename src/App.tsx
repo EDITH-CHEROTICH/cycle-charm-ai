@@ -13,12 +13,14 @@ import Profile from "./pages/Profile";
 import Subscription from "./pages/Subscription";
 import NotFound from "./pages/NotFound";
 import { initializeRevenueCat } from "@/lib/revenue-cat";
+import { initializeAdMob } from "@/lib/admob";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   useEffect(() => {
     initializeRevenueCat();
+    initializeAdMob();
   }, []);
 
   return (
