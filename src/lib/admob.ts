@@ -1,4 +1,5 @@
 import { AdMob, BannerAdOptions, BannerAdSize, BannerAdPosition, AdMobRewardItem } from '@capacitor-community/admob';
+import { Capacitor } from '@capacitor/core';
 
 export const AD_UNIT_IDS = {
   banner: 'ca-app-pub-3754288140610840/7115474238',
@@ -6,7 +7,16 @@ export const AD_UNIT_IDS = {
   reward: 'ca-app-pub-3754288140610840/4283644373',
 };
 
+const isNativePlatform = () => {
+  return Capacitor.isNativePlatform();
+};
+
 export const initializeAdMob = async () => {
+  if (!isNativePlatform()) {
+    console.log('AdMob: Skipping initialization on web');
+    return;
+  }
+  
   try {
     await AdMob.initialize({
       testingDevices: [],
@@ -19,6 +29,8 @@ export const initializeAdMob = async () => {
 };
 
 export const showBannerAd = async () => {
+  if (!isNativePlatform()) return;
+  
   try {
     const options: BannerAdOptions = {
       adId: AD_UNIT_IDS.banner,
@@ -33,6 +45,8 @@ export const showBannerAd = async () => {
 };
 
 export const hideBannerAd = async () => {
+  if (!isNativePlatform()) return;
+  
   try {
     await AdMob.hideBanner();
   } catch (error) {
@@ -41,6 +55,8 @@ export const hideBannerAd = async () => {
 };
 
 export const prepareInterstitialAd = async () => {
+  if (!isNativePlatform()) return;
+  
   try {
     await AdMob.prepareInterstitial({
       adId: AD_UNIT_IDS.interstitial,
@@ -51,6 +67,8 @@ export const prepareInterstitialAd = async () => {
 };
 
 export const showInterstitialAd = async () => {
+  if (!isNativePlatform()) return;
+  
   try {
     await AdMob.showInterstitial();
   } catch (error) {
@@ -59,6 +77,8 @@ export const showInterstitialAd = async () => {
 };
 
 export const prepareRewardAd = async () => {
+  if (!isNativePlatform()) return;
+  
   try {
     await AdMob.prepareRewardVideoAd({
       adId: AD_UNIT_IDS.reward,
@@ -69,6 +89,8 @@ export const prepareRewardAd = async () => {
 };
 
 export const showRewardAd = async (): Promise<AdMobRewardItem | null> => {
+  if (!isNativePlatform()) return null;
+  
   try {
     const result = await AdMob.showRewardVideoAd();
     return result;
