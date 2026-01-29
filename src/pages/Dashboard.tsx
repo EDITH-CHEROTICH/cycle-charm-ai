@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { format, addDays } from "date-fns";
 import { Calendar, MessageCircle, Sparkles, TrendingUp } from "lucide-react";
+import { updateCycleReminders } from "@/lib/notifications";
+import { setUserId, logBreadcrumb } from "@/lib/crashlytics";
 
 const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -97,6 +99,14 @@ const Dashboard = () => {
 
       setCycleData(refined);
       calculateCyclePhase(refined);
+
+      // Schedule push notifications for cycle reminders
+      const nextStart = new Date(new Date(lastStart).getTime() + averageCycle * 86400000);
+      updateCycleReminders(nextStart, averageCycle);
+
+      // Set user ID for crash reporting
+      setUserId(session.user.id);
+      logBreadcrumb('Dashboard loaded successfully');
     } catch (error: any) {
       toast({
         title: "Error loading data",

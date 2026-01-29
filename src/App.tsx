@@ -11,9 +11,13 @@ import CalendarView from "./pages/CalendarView";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
 import Subscription from "./pages/Subscription";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import { initializeRevenueCat } from "@/lib/revenue-cat";
 import { initializeAdMob } from "@/lib/admob";
+import { initializeNotifications } from "@/lib/notifications";
+import { initializeCrashlytics } from "@/lib/crashlytics";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +25,8 @@ const AppContent = () => {
   useEffect(() => {
     initializeRevenueCat();
     initializeAdMob();
+    initializeNotifications();
+    initializeCrashlytics();
   }, []);
 
   return (
@@ -32,6 +38,8 @@ const AppContent = () => {
       <Route path="/chat" element={<Chat />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/subscription" element={<Subscription />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<Terms />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
