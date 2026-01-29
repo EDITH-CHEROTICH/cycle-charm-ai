@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,11 +12,107 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, userId } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
+    // Fetch user's cycle data for context
+    let cycleContext = "";
+    if (userId && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      
+      // Get cycle data
+      const { data: cycleData } = await supabase
+        .from("cycle_data")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      // Get recent period logs
+      const { data: periodLogs } = await supabase
+        .from("period_logs")
+        .select("start_date, end_date, flow_intensity")
+        .eq("user_id", userId)
+        .order("start_date", { ascending: false })
+        .limit(3);
+
+      // Get recent symptoms
+      const today = new Date().toISOString().split('T')[0];
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const { data: symptoms } = await supabase
+        .from("symptoms")
+        .select("symptom_name, log_date")
+        .eq("user_id", userId)
+        .gte("log_date", weekAgo);
+
+      // Get today's mood
+      const { data: todayLog } = await supabase
+        .from("daily_logs")
+        .select("mood, energy_level, notes")
+        .eq("user_id", userId)
+        .eq("log_date", today)
+        .maybeSingle();
+
+      // Get profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name, age")
+        .eq("id", userId)
+        .maybeSingle();
+
+      // Calculate current cycle info
+      if (cycleData) {
+        const lastPeriod = new Date(cycleData.last_period_date);
+        const daysSincePeriod = Math.floor((Date.now() - lastPeriod.getTime()) / (1000 * 60 * 60 * 24));
+        const cycleDay = (daysSincePeriod % cycleData.average_cycle_length) + 1;
+        const daysUntilNext = cycleData.average_cycle_length - (daysSincePeriod % cycleData.average_cycle_length);
+        
+        // Determine phase
+        let phase = "Luteal Phase";
+        if (cycleDay <= cycleData.average_period_length) {
+          phase = "Period";
+        } else if (cycleDay <= 14) {
+          phase = "Follicular Phase";
+        } else if (cycleDay <= 16) {
+          phase = "Ovulation";
+        }
+
+        // Calculate fertile window
+        const ovulationDay = cycleData.average_cycle_length - 14;
+        const fertileStart = ovulationDay - 5;
+        const inFertileWindow = cycleDay >= fertileStart && cycleDay <= ovulationDay;
+
+        cycleContext = `
+USER'S CURRENT CYCLE INFORMATION:
+- Name: ${profile?.display_name || "User"}
+- Age: ${profile?.age || "Not specified"}
+- Current Cycle Day: ${cycleDay}
+- Current Phase: ${phase}
+- Days Until Next Period: ${daysUntilNext}
+- Average Cycle Length: ${cycleData.average_cycle_length} days
+- Average Period Length: ${cycleData.average_period_length} days
+- In Fertile Window: ${inFertileWindow ? "Yes" : "No"}
+- Last Period Started: ${cycleData.last_period_date}`;
+
+        if (periodLogs && periodLogs.length > 0) {
+          cycleContext += `\n- Recent Periods: ${periodLogs.map(p => p.start_date).join(", ")}`;
+        }
+
+        if (symptoms && symptoms.length > 0) {
+          const symptomList = [...new Set(symptoms.map(s => s.symptom_name))];
+          cycleContext += `\n- Recent Symptoms (past week): ${symptomList.join(", ")}`;
+        }
+
+        if (todayLog) {
+          cycleContext += `\n- Today's Mood: ${todayLog.mood || "Not logged"}`;
+          cycleContext += `\n- Today's Energy: ${todayLog.energy_level || "Not logged"}/5`;
+        }
+      }
     }
 
     const systemPrompt = `You are a sweet, caring AI companion for a period tracking app called Cycle Charm. 
@@ -27,12 +124,20 @@ Your personality:
 - Encouraging and positive
 - Keep responses concise but heartfelt
 
+${cycleContext}
+
 Guidelines:
+- Use the user's cycle data above to give personalized, relevant advice
+- Reference their current phase and symptoms when giving advice
+- If they're in their period, be extra nurturing and suggest comfort measures
+- If they're in their fertile window, you can mention it if relevant
+- If they have specific symptoms, acknowledge them and offer targeted advice
 - Always be supportive and non-judgmental
 - Provide helpful information about periods, PMS, and related health topics
 - Encourage self-care and wellness
 - Use emojis occasionally to keep the tone warm 💜
-- If asked medical questions, provide general information but always remind them to consult a healthcare provider for serious concerns`;
+- If asked medical questions, provide general information but always remind them to consult a healthcare provider for serious concerns
+- Keep responses conversational and not too long`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -41,7 +146,7 @@ Guidelines:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
