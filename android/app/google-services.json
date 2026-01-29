@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "191172730815",
+    "project_id": "cycle-charm",
+    "storage_bucket": "cycle-charm.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191172730815:android:b111c9e74b679ada5f0b0a",
+        "android_client_info": {
+          "package_name": "com.cyclecharm.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0MdOl57Nq8zfyiZaruFdOn_NY0DUo5Rc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
