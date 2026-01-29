@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.c5254577076a4067bbf63384a09ec363',
+  appId: 'com.cyclecharm.app',
   appName: 'cycle-charm-ai',
   webDir: 'dist',
   server: {
