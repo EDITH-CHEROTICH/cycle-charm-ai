@@ -7,9 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { format, addDays } from "date-fns";
-import { Calendar, MessageCircle, Sparkles, TrendingUp } from "lucide-react";
+import { Calendar, MessageCircle, Sparkles, TrendingUp, WifiOff } from "lucide-react";
 import { updateCycleReminders } from "@/lib/notifications";
 import { setUserId, logBreadcrumb } from "@/lib/crashlytics";
+import {
+  useOffline,
+  cacheUserData,
+  cacheUserSession,
+  getCachedUser,
+  getCachedProfile,
+  getCachedCycleData,
+  getCachedPeriodLogs,
+  getCachedSymptoms,
+  hasCachedUserData,
+} from "@/hooks/use-offline";
 
 const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -25,13 +36,93 @@ const Dashboard = () => {
   const [todaySymptoms, setTodaySymptoms] = useState<string[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isOnline, isInitialized } = useOffline();
+
+  // Load cached data when offline
+  const loadOfflineData = () => {
+    const cachedProfile = getCachedProfile();
+    const cachedCycleData = getCachedCycleData();
+    const cachedSymptoms = getCachedSymptoms();
+
+    if (cachedProfile && cachedCycleData) {
+      setProfile(cachedProfile);
+      
+      // Get today's symptoms from cache
+      const today = new Date().toISOString().split('T')[0];
+      const todaySymptomsFiltered = cachedSymptoms
+        .filter((s: any) => s.log_date === today)
+        .map((s: any) => s.symptom_name);
+      setTodaySymptoms(todaySymptomsFiltered);
+
+      // Calculate cycle data from cached period logs
+      const cachedLogs = getCachedPeriodLogs();
+      let lastStart = cachedCycleData.last_period_date;
+      let averageCycle = cachedCycleData.average_cycle_length;
+
+      if (cachedLogs && cachedLogs.length > 0) {
+        lastStart = cachedLogs[0].start_date;
+        if (cachedLogs.length > 1) {
+          const gaps: number[] = [];
+          for (let i = 0; i < cachedLogs.length - 1; i++) {
+            const gap = daysBetween(cachedLogs[i].start_date, cachedLogs[i + 1].start_date);
+            if (!isNaN(gap) && gap > 10 && gap < 60) gaps.push(gap);
+          }
+          if (gaps.length) {
+            averageCycle = Math.round(gaps.reduce((a, b) => a + b, 0) / gaps.length);
+          }
+        }
+      }
+
+      const refined = {
+        ...cachedCycleData,
+        last_period_date: lastStart,
+        average_cycle_length: averageCycle,
+      };
+
+      setCycleData(refined);
+      calculateCyclePhase(refined);
+      setLoading(false);
+      
+      toast({
+        title: "Offline Mode",
+        description: "Using cached data. Some features may be limited.",
+      });
+      return true;
+    }
+    return false;
+  };
 
   const fetchData = async () => {
+    // If offline, try to use cached data
+    if (!isOnline) {
+      if (hasCachedUserData()) {
+        loadOfflineData();
+        return;
+      } else {
+        // No cached data and offline - can't do anything
+        toast({
+          title: "You're offline",
+          description: "Please connect to the internet to set up your account.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
+      // Check for cached user data before redirecting to auth
+      if (hasCachedUserData()) {
+        loadOfflineData();
+        return;
+      }
       navigate("/auth");
       return;
     }
+
+    // Cache user session for offline use
+    cacheUserSession(session.user);
 
     try {
       setLoading(true);
@@ -100,6 +191,9 @@ const Dashboard = () => {
       setCycleData(refined);
       calculateCyclePhase(refined);
 
+      // Cache all user data for offline use
+      await cacheUserData(session.user.id);
+
       // Schedule push notifications for cycle reminders
       const nextStart = new Date(new Date(lastStart).getTime() + averageCycle * 86400000);
       updateCycleReminders(nextStart, averageCycle);
@@ -108,6 +202,11 @@ const Dashboard = () => {
       setUserId(session.user.id);
       logBreadcrumb('Dashboard loaded successfully');
     } catch (error: any) {
+      // If fetch fails, try to use cached data
+      if (hasCachedUserData()) {
+        loadOfflineData();
+        return;
+      }
       toast({
         title: "Error loading data",
         description: error.message,
@@ -119,11 +218,15 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    if (isInitialized) {
+      fetchData();
+    }
+  }, [isInitialized, isOnline]);
 
+  useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (!session) {
+        if (!session && isOnline && !hasCachedUserData()) {
           navigate("/auth");
         }
       }
@@ -142,7 +245,7 @@ const Dashboard = () => {
       subscription.unsubscribe();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [navigate, toast]);
+  }, [navigate, isOnline]);
 
   // UTC helpers to avoid timezone off-by-one errors
   const toUtcMidnight = (d: Date | string) => {
@@ -220,6 +323,14 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 pb-20">
+      {/* Offline Indicator */}
+      {!isOnline && (
+        <div className="bg-destructive/90 text-destructive-foreground px-4 py-2 text-center text-sm flex items-center justify-center gap-2">
+          <WifiOff className="w-4 h-4" />
+          You're offline - using cached data
+        </div>
+      )}
+      
       <div className="max-w-md mx-auto p-4 pt-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-1">
