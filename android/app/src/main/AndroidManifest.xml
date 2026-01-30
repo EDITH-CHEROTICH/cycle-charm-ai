@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.cyclecharm.app">
 
     <application
         android:allowBackup="true"
@@ -9,24 +10,20 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- AdMob App ID - CORRECT -->
+        <!-- AdMob App ID -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3754288140610840~9741637574" />
 
         <activity
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation"
             android:name=".MainActivity"
-            android:label="@string/title_activity_main"
+            android:exported="true"
             android:theme="@style/AppTheme.NoActionBarLaunch"
-            android:launchMode="singleTask"
-            android:exported="true">
-
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
 
         <provider
@@ -43,5 +40,4 @@
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
 </manifest>

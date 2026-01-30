@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+import { ThemeProvider } from "@/hooks/use-theme";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
@@ -11,9 +12,13 @@ import CalendarView from "./pages/CalendarView";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
 import Subscription from "./pages/Subscription";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import { initializeRevenueCat } from "@/lib/revenue-cat";
 import { initializeAdMob } from "@/lib/admob";
+import { initializeNotifications } from "@/lib/notifications";
+import { initializeCrashlytics } from "@/lib/crashlytics";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +26,8 @@ const AppContent = () => {
   useEffect(() => {
     initializeRevenueCat();
     initializeAdMob();
+    initializeNotifications();
+    initializeCrashlytics();
   }, []);
 
   return (
@@ -32,6 +39,8 @@ const AppContent = () => {
       <Route path="/chat" element={<Chat />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/subscription" element={<Subscription />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<Terms />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
@@ -40,13 +49,15 @@ const AppContent = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

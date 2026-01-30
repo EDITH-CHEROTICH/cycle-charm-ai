@@ -1,8 +1,18 @@
 import { Purchases, LOG_LEVEL } from '@revenuecat/purchases-capacitor';
+import { Capacitor } from '@capacitor/core';
 
 export const PREMIUM_ENTITLEMENT = 'premium';
 
+const isNativePlatform = () => {
+  return Capacitor.isNativePlatform();
+};
+
 export const initializeRevenueCat = async () => {
+  if (!isNativePlatform()) {
+    console.log('RevenueCat: Skipping initialization on web');
+    return false;
+  }
+  
   try {
     await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
     
@@ -27,6 +37,8 @@ export const initializeRevenueCat = async () => {
 };
 
 export const checkPremiumStatus = async (): Promise<boolean> => {
+  if (!isNativePlatform()) return false;
+  
   try {
     const customerInfo = await Purchases.getCustomerInfo();
     return customerInfo.customerInfo.entitlements.active[PREMIUM_ENTITLEMENT] !== undefined;
@@ -37,6 +49,8 @@ export const checkPremiumStatus = async (): Promise<boolean> => {
 };
 
 export const getOfferings = async () => {
+  if (!isNativePlatform()) return null;
+  
   try {
     const result = await Purchases.getOfferings();
     return result;
@@ -47,6 +61,10 @@ export const getOfferings = async () => {
 };
 
 export const purchasePackage = async (packageIdentifier: string) => {
+  if (!isNativePlatform()) {
+    return { success: false, isPremium: false };
+  }
+  
   try {
     const result = await Purchases.getOfferings();
     const currentOffering = result.current;
@@ -78,6 +96,10 @@ export const purchasePackage = async (packageIdentifier: string) => {
 };
 
 export const restorePurchases = async () => {
+  if (!isNativePlatform()) {
+    return { success: false, isPremium: false };
+  }
+  
   try {
     const customerInfo = await Purchases.restorePurchases();
     return {

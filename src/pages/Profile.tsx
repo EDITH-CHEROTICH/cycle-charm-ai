@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
@@ -7,9 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { usePremium } from "@/hooks/use-premium";
-import { Crown, Sparkles } from "lucide-react";
+import { useTheme } from "@/hooks/use-theme";
+import { Crown, Sparkles, Shield, FileText, Bell, LogOut, Moon, Sun } from "lucide-react";
+import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import { clearCachedData } from "@/hooks/use-offline";
 
 const Profile = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -22,6 +27,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isPremium, loading: premiumLoading } = usePremium();
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
     const loadData = async () => {
@@ -90,6 +96,7 @@ const Profile = () => {
   };
 
   const handleLogout = async () => {
+    clearCachedData();
     await supabase.auth.signOut();
     navigate("/auth");
   };
@@ -215,13 +222,82 @@ const Profile = () => {
           </div>
         </Card>
 
-        <Button
-          onClick={handleLogout}
-          variant="outline"
-          className="w-full border-destructive text-destructive hover:bg-destructive hover:text-white"
-        >
-          Sign Out
-        </Button>
+        {/* Appearance Section */}
+        <Card className="p-4 border-primary/20 mb-4">
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            {resolvedTheme === "dark" ? (
+              <Moon className="w-4 h-4 text-primary" />
+            ) : (
+              <Sun className="w-4 h-4 text-primary" />
+            )}
+            Appearance
+          </h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Dark Mode</p>
+              <p className="text-sm text-muted-foreground">
+                {theme === "system" ? "Following system" : resolvedTheme === "dark" ? "On" : "Off"}
+              </p>
+            </div>
+            <Switch
+              checked={resolvedTheme === "dark"}
+              onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+            />
+          </div>
+        </Card>
+
+        {/* Settings Section */}
+        <Card className="p-4 border-primary/20 mb-4">
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <Bell className="w-4 h-4 text-primary" />
+            Notifications
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Push notifications for period reminders, fertile window alerts, and daily check-ins are enabled automatically on mobile devices.
+          </p>
+        </Card>
+
+        {/* Legal Section */}
+        <Card className="p-4 border-primary/20 mb-4">
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-primary" />
+            Legal
+          </h3>
+          <div className="space-y-2">
+            <Link to="/privacy" className="block">
+              <Button variant="ghost" className="w-full justify-start">
+                <Shield className="w-4 h-4 mr-2" />
+                Privacy Policy
+              </Button>
+            </Link>
+            <Link to="/terms" className="block">
+              <Button variant="ghost" className="w-full justify-start">
+                <FileText className="w-4 h-4 mr-2" />
+                Terms of Service
+              </Button>
+            </Link>
+          </div>
+        </Card>
+
+        {/* Account Actions */}
+        <div className="space-y-3">
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="w-full"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+
+          <Separator className="my-4" />
+
+          <DeleteAccountDialog onDeleted={() => navigate("/auth")} />
+
+          <p className="text-xs text-muted-foreground text-center mt-2">
+            Deleting your account will permanently remove all your data.
+          </p>
+        </div>
       </div>
       <Navigation />
     </div>
