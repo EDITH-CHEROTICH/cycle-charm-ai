@@ -9,11 +9,24 @@ import { PeriodHistory } from "@/components/PeriodHistory";
 import { CycleInsights } from "@/components/CycleInsights";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Pencil, BarChart3, History } from "lucide-react";
+import { showBannerAd, hideBannerAd, showInterstitialAd } from "@/lib/admob";
+import { usePremium } from "@/hooks/use-premium";
 
 const CalendarView = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const navigate = useNavigate();
+  const { isPremium } = usePremium();
+
+  // Show banner ad for free users
+  useEffect(() => {
+    if (!isPremium) {
+      showBannerAd();
+    }
+    return () => {
+      hideBannerAd();
+    };
+  }, [isPremium]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -27,6 +40,10 @@ const CalendarView = () => {
 
   const handlePeriodLogged = () => {
     setRefreshTrigger(prev => prev + 1);
+    // Show interstitial ad after logging period for free users
+    if (!isPremium) {
+      showInterstitialAd();
+    }
   };
 
   const handleDateSelect = (date: Date) => {
