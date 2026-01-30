@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Send } from "lucide-react";
 import aiAvatar from "@/assets/ai-avatar.jpg";
+import { showBannerAd, hideBannerAd } from "@/lib/admob";
+import { usePremium } from "@/hooks/use-premium";
 
 type Message = {
   role: "user" | "assistant";
@@ -23,15 +25,29 @@ const Chat = () => {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isPremium } = usePremium();
+
+  // Show banner ad for free users
+  useEffect(() => {
+    if (!isPremium) {
+      showBannerAd();
+    }
+    return () => {
+      hideBannerAd();
+    };
+  }, [isPremium]);
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate("/auth");
+      } else {
+        setUserId(session.user.id);
       }
     };
     checkAuth();
@@ -60,7 +76,10 @@ const Chat = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ messages: [...messages, userMessage] }),
+          body: JSON.stringify({ 
+            messages: [...messages, userMessage],
+            userId: userId
+          }),
         }
       );
 

@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Droplet, Save, X } from "lucide-react";
 
@@ -10,10 +12,19 @@ interface PeriodLoggerProps {
   onPeriodLogged: () => void;
 }
 
+const FLOW_LEVELS = [
+  { value: "spotting", label: "Spotting", emoji: "💧" },
+  { value: "light", label: "Light", emoji: "💧💧" },
+  { value: "medium", label: "Medium", emoji: "💧💧💧" },
+  { value: "heavy", label: "Heavy", emoji: "💧💧💧💧" },
+];
+
 export const PeriodLogger = ({ onPeriodLogged }: PeriodLoggerProps) => {
   const [isLogging, setIsLogging] = useState(false);
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
+  const [flowIntensity, setFlowIntensity] = useState("medium");
+  const [notes, setNotes] = useState("");
   const { toast } = useToast();
 
   const handleSave = async () => {
@@ -44,6 +55,8 @@ export const PeriodLogger = ({ onPeriodLogged }: PeriodLoggerProps) => {
           user_id: user.id,
           start_date: formatDate(startDate),
           end_date: endDate ? formatDate(endDate) : null,
+          flow_intensity: flowIntensity,
+          notes: notes || null,
         });
 
       if (error) throw error;
@@ -65,6 +78,8 @@ export const PeriodLogger = ({ onPeriodLogged }: PeriodLoggerProps) => {
       setIsLogging(false);
       setStartDate(undefined);
       setEndDate(undefined);
+      setFlowIntensity("medium");
+      setNotes("");
       onPeriodLogged();
     } catch (error: any) {
       toast({
@@ -77,13 +92,22 @@ export const PeriodLogger = ({ onPeriodLogged }: PeriodLoggerProps) => {
 
   if (!isLogging) {
     return (
-      <Button
-        onClick={() => setIsLogging(true)}
-        className="w-full bg-gradient-to-r from-primary to-accent"
-      >
-        <Droplet className="w-4 h-4 mr-2" />
-        Log Period
-      </Button>
+      <Card className="p-6 border-primary/20">
+        <div className="text-center space-y-4">
+          <Droplet className="w-12 h-12 mx-auto text-primary" />
+          <div>
+            <h3 className="font-semibold text-lg">Log Your Period</h3>
+            <p className="text-sm text-muted-foreground">Track when your period starts and ends</p>
+          </div>
+          <Button
+            onClick={() => setIsLogging(true)}
+            className="w-full bg-gradient-to-r from-primary to-accent"
+          >
+            <Droplet className="w-4 h-4 mr-2" />
+            Start Logging
+          </Button>
+        </div>
+      </Card>
     );
   }
 
@@ -99,6 +123,8 @@ export const PeriodLogger = ({ onPeriodLogged }: PeriodLoggerProps) => {
               setIsLogging(false);
               setStartDate(undefined);
               setEndDate(undefined);
+              setFlowIntensity("medium");
+              setNotes("");
             }}
           >
             <X className="w-4 h-4" />
@@ -106,29 +132,57 @@ export const PeriodLogger = ({ onPeriodLogged }: PeriodLoggerProps) => {
         </div>
 
         <div>
-          <p className="text-sm text-muted-foreground mb-2">Start Date *</p>
+          <p className="text-sm font-medium mb-2">Start Date *</p>
           <div className="flex justify-center">
             <Calendar
               mode="single"
               selected={startDate}
               onSelect={setStartDate}
-              className="rounded-md border"
+              className="rounded-md border pointer-events-auto"
               disabled={(date) => date > new Date()}
             />
           </div>
         </div>
 
         <div>
-          <p className="text-sm text-muted-foreground mb-2">End Date (optional)</p>
+          <p className="text-sm font-medium mb-2">End Date (optional)</p>
           <div className="flex justify-center">
             <Calendar
               mode="single"
               selected={endDate}
               onSelect={setEndDate}
-              className="rounded-md border"
+              className="rounded-md border pointer-events-auto"
               disabled={(date) => !startDate || date < startDate || date > new Date()}
             />
           </div>
+        </div>
+
+        <div>
+          <p className="text-sm font-medium mb-3">Flow Intensity</p>
+          <div className="flex justify-center gap-2">
+            {FLOW_LEVELS.map((flow) => (
+              <Button
+                key={flow.value}
+                variant={flowIntensity === flow.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFlowIntensity(flow.value)}
+                className={flowIntensity === flow.value ? "bg-gradient-to-r from-primary to-accent" : ""}
+              >
+                <span className="mr-1">{flow.emoji}</span>
+                <span className="hidden sm:inline">{flow.label}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-sm font-medium mb-2">Notes (optional)</p>
+          <Textarea
+            placeholder="Any notes about this period..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="min-h-[60px] border-primary/20"
+          />
         </div>
 
         <Button onClick={handleSave} className="w-full bg-gradient-to-r from-primary to-accent">

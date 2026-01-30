@@ -44,25 +44,67 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_logs: {
+        Row: {
+          created_at: string | null
+          energy_level: number | null
+          id: string
+          log_date: string
+          mood: string | null
+          notes: string | null
+          sleep_quality: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          energy_level?: number | null
+          id?: string
+          log_date: string
+          mood?: string | null
+          notes?: string | null
+          sleep_quality?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          energy_level?: number | null
+          id?: string
+          log_date?: string
+          mood?: string | null
+          notes?: string | null
+          sleep_quality?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       period_logs: {
         Row: {
           created_at: string | null
           end_date: string | null
+          flow_intensity: string | null
           id: string
+          notes: string | null
           start_date: string
           user_id: string
         }
         Insert: {
           created_at?: string | null
           end_date?: string | null
+          flow_intensity?: string | null
           id?: string
+          notes?: string | null
           start_date: string
           user_id: string
         }
         Update: {
           created_at?: string | null
           end_date?: string | null
+          flow_intensity?: string | null
           id?: string
+          notes?: string | null
           start_date?: string
           user_id?: string
         }
@@ -99,18 +141,21 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          log_date: string | null
           symptom_name: string
           user_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
+          log_date?: string | null
           symptom_name: string
           user_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
+          log_date?: string | null
           symptom_name?: string
           user_id?: string
         }
