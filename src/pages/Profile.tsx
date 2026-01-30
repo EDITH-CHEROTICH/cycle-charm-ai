@@ -8,10 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { usePremium } from "@/hooks/use-premium";
-import { Crown, Sparkles, Shield, FileText, Bell, LogOut } from "lucide-react";
+import { useTheme } from "@/hooks/use-theme";
+import { Crown, Sparkles, Shield, FileText, Bell, LogOut, Moon, Sun } from "lucide-react";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import { clearCachedData } from "@/hooks/use-offline";
 
 const Profile = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -24,6 +27,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isPremium, loading: premiumLoading } = usePremium();
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
     const loadData = async () => {
@@ -92,6 +96,7 @@ const Profile = () => {
   };
 
   const handleLogout = async () => {
+    clearCachedData();
     await supabase.auth.signOut();
     navigate("/auth");
   };
@@ -214,6 +219,30 @@ const Profile = () => {
                 Edit Profile
               </Button>
             )}
+          </div>
+        </Card>
+
+        {/* Appearance Section */}
+        <Card className="p-4 border-primary/20 mb-4">
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            {resolvedTheme === "dark" ? (
+              <Moon className="w-4 h-4 text-primary" />
+            ) : (
+              <Sun className="w-4 h-4 text-primary" />
+            )}
+            Appearance
+          </h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Dark Mode</p>
+              <p className="text-sm text-muted-foreground">
+                {theme === "system" ? "Following system" : resolvedTheme === "dark" ? "On" : "Off"}
+              </p>
+            </div>
+            <Switch
+              checked={resolvedTheme === "dark"}
+              onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+            />
           </div>
         </Card>
 
