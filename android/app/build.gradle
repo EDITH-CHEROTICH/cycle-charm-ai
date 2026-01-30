@@ -54,11 +54,7 @@ configurations.all {
     }
 }
 
-repositories {
-    flatDir{
-        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
-    }
-}
+// Local libs are handled via fileTree in dependencies block
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
