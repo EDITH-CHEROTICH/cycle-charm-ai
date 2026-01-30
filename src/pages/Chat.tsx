@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Send } from "lucide-react";
 import aiAvatar from "@/assets/ai-avatar.jpg";
+import { showBannerAd, hideBannerAd } from "@/lib/admob";
+import { usePremium } from "@/hooks/use-premium";
 
 type Message = {
   role: "user" | "assistant";
@@ -27,6 +29,17 @@ const Chat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isPremium } = usePremium();
+
+  // Show banner ad for free users
+  useEffect(() => {
+    if (!isPremium) {
+      showBannerAd();
+    }
+    return () => {
+      hideBannerAd();
+    };
+  }, [isPremium]);
 
   useEffect(() => {
     const checkAuth = async () => {

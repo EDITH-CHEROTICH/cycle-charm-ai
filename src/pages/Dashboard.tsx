@@ -10,6 +10,8 @@ import { format, addDays } from "date-fns";
 import { Calendar, MessageCircle, Sparkles, TrendingUp, WifiOff } from "lucide-react";
 import { updateCycleReminders } from "@/lib/notifications";
 import { setUserId, logBreadcrumb } from "@/lib/crashlytics";
+import { showBannerAd, hideBannerAd, prepareInterstitialAd } from "@/lib/admob";
+import { usePremium } from "@/hooks/use-premium";
 import {
   useOffline,
   cacheUserData,
@@ -37,6 +39,18 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isOnline, isInitialized } = useOffline();
+  const { isPremium } = usePremium();
+
+  // Show banner ad for free users, prepare interstitial
+  useEffect(() => {
+    if (!isPremium) {
+      showBannerAd();
+      prepareInterstitialAd();
+    }
+    return () => {
+      hideBannerAd();
+    };
+  }, [isPremium]);
 
   // Load cached data when offline
   const loadOfflineData = () => {
