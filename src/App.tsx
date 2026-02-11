@@ -19,39 +19,14 @@ import { initializeRevenueCat } from "@/lib/revenue-cat";
 import { initializeNotifications } from "@/lib/notifications";
 import { initializeCrashlytics } from "@/lib/crashlytics";
 
-// Import the AdMob plugin and enums
-import { AdMob, BannerAdSize, BannerAdPosition } from '@capacitor-community/admob';
+import { initializeAdMob } from "@/lib/admob";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   useEffect(() => {
-    // This function will initialize AdMob and show a banner ad.
-    const setupAds = async () => {
-      try {
-        // Initialize AdMob and request tracking authorization
-        await AdMob.initialize({
-          requestTrackingAuthorization: true,
-          initializeForTesting: true,
-        });
-
-        // Prepare and show the banner ad
-        const options = {
-          // This is a test ad ID. It will always show a test ad.
-          adId: 'ca-app-pub-3940256099942544/6300978111', 
-          adSize: BannerAdSize.ADAPTIVE_BANNER,
-          position: BannerAdPosition.BOTTOM_CENTER,
-          margin: 0,
-          isTesting: true, // This is crucial for development
-        };
-        await AdMob.showBanner(options);
-      } catch (e) {
-        console.error("AdMob error:", e);
-      }
-    };
-
     initializeRevenueCat();
-    setupAds(); // Call the new function to set up ads
+    initializeAdMob();
     initializeNotifications();
     initializeCrashlytics();
   }, []);
