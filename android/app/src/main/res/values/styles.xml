@@ -7,7 +7,7 @@
         <item name="android:windowBackground">@color/white</item>
     </style>
 
-    <style name="BridgeTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="BridgeTheme" parent="AppTheme">
         <item name="android:windowBackground">@android:color/white</item>
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
