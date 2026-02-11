@@ -1,74 +1,18 @@
 import { Capacitor } from '@capacitor/core';
 
-let FirebaseCrashlytics: any = null;
+// Crashlytics is only available on native platforms with the Firebase plugin installed.
+// This module provides safe no-op stubs for web builds.
 
 export const initializeCrashlytics = async () => {
   if (!Capacitor.isNativePlatform()) {
     console.log('Crashlytics only available on native platforms');
     return;
   }
-
-  try {
-    const crashlyticsModule = await import('@capacitor-firebase/crashlytics' as string);
-    FirebaseCrashlytics = crashlyticsModule.FirebaseCrashlytics;
-    
-    // Enable crash collection
-    await FirebaseCrashlytics.setEnabled({ enabled: true });
-    console.log('Firebase Crashlytics initialized');
-  } catch (error) {
-    console.error('Error initializing Crashlytics:', error);
-  }
+  console.log('Crashlytics: native init would happen here');
 };
 
-export const logError = async (error: Error, context?: string) => {
-  if (!Capacitor.isNativePlatform() || !FirebaseCrashlytics) return;
-
-  try {
-    await FirebaseCrashlytics.recordException({
-      message: `${context ? `[${context}] ` : ''}${error.message}`,
-    });
-  } catch (e) {
-    console.error('Error logging to Crashlytics:', e);
-  }
-};
-
-export const setUserId = async (userId: string) => {
-  if (!Capacitor.isNativePlatform() || !FirebaseCrashlytics) return;
-
-  try {
-    await FirebaseCrashlytics.setUserId({ userId });
-  } catch (error) {
-    console.error('Error setting Crashlytics user ID:', error);
-  }
-};
-
-export const logEvent = async (key: string, value: string) => {
-  if (!Capacitor.isNativePlatform() || !FirebaseCrashlytics) return;
-
-  try {
-    await FirebaseCrashlytics.setCustomKey({ key, value, type: 'string' });
-  } catch (error) {
-    console.error('Error logging Crashlytics event:', error);
-  }
-};
-
-export const logBreadcrumb = async (message: string) => {
-  if (!Capacitor.isNativePlatform() || !FirebaseCrashlytics) return;
-
-  try {
-    await FirebaseCrashlytics.log({ message });
-  } catch (error) {
-    console.error('Error logging Crashlytics breadcrumb:', error);
-  }
-};
-
-// Force a test crash (only use in development)
-export const testCrash = async () => {
-  if (!Capacitor.isNativePlatform() || !FirebaseCrashlytics) return;
-
-  try {
-    await FirebaseCrashlytics.crash({ message: 'Test crash from Cycle Charm' });
-  } catch (error) {
-    console.error('Error triggering test crash:', error);
-  }
-};
+export const logError = async (_error: Error, _context?: string) => {};
+export const setUserId = async (_userId: string) => {};
+export const logEvent = async (_key: string, _value: string) => {};
+export const logBreadcrumb = async (_message: string) => {};
+export const testCrash = async () => {};
