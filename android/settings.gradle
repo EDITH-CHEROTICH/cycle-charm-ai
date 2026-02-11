@@ -1,5 +1,15 @@
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+        maven { url 'https://maven.revenuecat.com/' }
+    }
+}
 include ':app'
-include ':capacitor-cordova-android-plugins'
-project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')
+// include ':capacitor-cordova-android-plugins'
+// project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')
 
 apply from: 'capacitor.settings.gradle'

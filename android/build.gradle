@@ -1,49 +1,22 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
-def kotlin_version = "2.0.0"
-
+// Top-level build file for Cycle Charm - Worldwide Period Tracker App
 buildscript {
     ext {
-        kotlin_version = "2.0.0"
+        kotlin_version = '2.2.0'
+        agp_version = '8.4.0'
+        google_services_version = '4.4.1'
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.8.0'
-        classpath 'com.google.gms:google-services:4.4.2'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9' // Add Firebase Crashlytics plugin
-        // Kotlin Gradle plugin (keeps plugin version aligned with stdlib)
+        classpath "com.android.tools.build:gradle:$agp_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath "com.google.gms:google-services:$google_services_version"
     }
 }
 
 apply from: "variables.gradle"
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        // if you have other repos (jitpack, etc) add them here
-    }
-}
-
-/*
- Force kotlin stdlib family to a single version project-wide to avoid duplicate classes
- This ensures kotlin-stdlib, kotlin-stdlib-jdk7 and kotlin-stdlib-jdk8 are all 2.0.0
-*/
-subprojects {
-    configurations.all {
-        resolutionStrategy {
-            force "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-        }
-    }
-}
 
 task clean(type: Delete) {
     delete rootProject.buildDir

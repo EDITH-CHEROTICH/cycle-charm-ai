@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="colorPrimary">#D4A6B7</color> <!-- Mauve -->
+    <color name="colorPrimaryDark">#B98A9F</color> <!-- Darker Mauve -->
+    <color name="colorAccent">#FF8FAB</color> <!-- Pink -->
     <color name="white">#FFFFFF</color>
-    <!-- Other colors -->
+    <color name="pink_light">#FFC0CB</color>
+    <color name="mauve_light">#E0B0FF</color>
 </resources>
