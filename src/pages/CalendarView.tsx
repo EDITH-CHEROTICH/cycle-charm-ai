@@ -9,7 +9,7 @@ import { PeriodHistory } from "@/components/PeriodHistory";
 import { CycleInsights } from "@/components/CycleInsights";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Pencil, BarChart3, History } from "lucide-react";
-import { showBannerAd, hideBannerAd, showInterstitialAd } from "@/lib/admob";
+import { showBannerAd, hideBannerAd, prepareInterstitialAd, showInterstitialAd } from "@/lib/admob";
 import { usePremium } from "@/hooks/use-premium";
 
 const CalendarView = () => {
@@ -18,10 +18,11 @@ const CalendarView = () => {
   const navigate = useNavigate();
   const { isPremium } = usePremium();
 
-  // Show banner ad for free users
+  // Show banner ad and prepare interstitial for free users
   useEffect(() => {
     if (!isPremium) {
       showBannerAd();
+      prepareInterstitialAd();
     }
     return () => {
       hideBannerAd();
@@ -38,11 +39,13 @@ const CalendarView = () => {
     checkAuth();
   }, [navigate]);
 
-  const handlePeriodLogged = () => {
+  const handlePeriodLogged = async () => {
     setRefreshTrigger(prev => prev + 1);
     // Show interstitial ad after logging period for free users
     if (!isPremium) {
-      showInterstitialAd();
+      await showInterstitialAd();
+      // Re-prepare next interstitial
+      prepareInterstitialAd();
     }
   };
 

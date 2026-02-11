@@ -22,7 +22,11 @@ export const initializeAdMob = async () => {
       testingDevices: [],
       initializeForTesting: false,
     });
-    console.log('AdMob initialized');
+    console.log('AdMob initialized successfully');
+    
+    // Pre-prepare interstitial and reward ads after init
+    await prepareInterstitialAd();
+    await prepareRewardAd();
   } catch (error) {
     console.error('AdMob initialization error:', error);
   }
@@ -73,6 +77,8 @@ export const showInterstitialAd = async () => {
     await AdMob.showInterstitial();
   } catch (error) {
     console.error('Show interstitial error:', error);
+    // Try to prepare again if show failed
+    await prepareInterstitialAd();
   }
 };
 
