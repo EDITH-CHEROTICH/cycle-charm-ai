@@ -9,7 +9,7 @@ export const initializeCrashlytics = async () => {
   }
 
   try {
-    const crashlyticsModule = await import('@capacitor-firebase/crashlytics');
+    const crashlyticsModule = await import('@capacitor-firebase/crashlytics' as string);
     FirebaseCrashlytics = crashlyticsModule.FirebaseCrashlytics;
     
     // Enable crash collection
