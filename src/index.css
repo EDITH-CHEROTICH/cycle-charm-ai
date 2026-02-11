@@ -8,89 +8,89 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 300 15% 20%;
+    --background: 340 60% 98%;
+    --foreground: 330 30% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 300 15% 20%;
+    --card-foreground: 330 30% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 300 15% 20%;
+    --popover-foreground: 330 30% 20%;
 
-    --primary: 300 25% 70%;
+    --primary: 330 70% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 330 30% 95%;
-    --secondary-foreground: 300 15% 25%;
+    --secondary: 340 50% 92%;
+    --secondary-foreground: 330 40% 25%;
 
-    --muted: 330 20% 97%;
-    --muted-foreground: 300 10% 50%;
+    --muted: 340 40% 95%;
+    --muted-foreground: 330 20% 45%;
 
-    --accent: 340 60% 80%;
+    --accent: 350 80% 65%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 330 20% 92%;
-    --input: 330 20% 92%;
-    --ring: 300 25% 70%;
+    --border: 340 35% 88%;
+    --input: 340 35% 88%;
+    --ring: 330 70% 60%;
 
     --radius: 1rem;
     
-    --gradient-primary: linear-gradient(135deg, hsl(300 25% 70%), hsl(340 60% 80%));
-    --gradient-soft: linear-gradient(180deg, hsl(0 0% 100%), hsl(330 30% 98%));
+    --gradient-primary: linear-gradient(135deg, hsl(330 70% 60%), hsl(350 80% 65%));
+    --gradient-soft: linear-gradient(180deg, hsl(340 50% 97%), hsl(350 45% 94%));
 
-    --sidebar-background: 330 20% 99%;
-    --sidebar-foreground: 300 15% 25%;
-    --sidebar-primary: 300 25% 70%;
+    --sidebar-background: 340 45% 97%;
+    --sidebar-foreground: 330 25% 25%;
+    --sidebar-primary: 330 70% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 330 25% 96%;
-    --sidebar-accent-foreground: 300 15% 25%;
-    --sidebar-border: 330 15% 93%;
-    --sidebar-ring: 300 25% 70%;
+    --sidebar-accent: 340 40% 93%;
+    --sidebar-accent-foreground: 330 25% 25%;
+    --sidebar-border: 340 30% 88%;
+    --sidebar-ring: 330 70% 60%;
   }
 
   .dark {
-    --background: 300 30% 8%;
-    --foreground: 330 20% 95%;
+    --background: 330 30% 7%;
+    --foreground: 340 30% 92%;
 
-    --card: 300 25% 12%;
-    --card-foreground: 330 20% 95%;
+    --card: 330 25% 11%;
+    --card-foreground: 340 30% 92%;
 
-    --popover: 300 25% 12%;
-    --popover-foreground: 330 20% 95%;
+    --popover: 330 25% 11%;
+    --popover-foreground: 340 30% 92%;
 
-    --primary: 300 25% 70%;
+    --primary: 330 70% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 300 20% 18%;
-    --secondary-foreground: 330 20% 95%;
+    --secondary: 330 30% 18%;
+    --secondary-foreground: 340 30% 92%;
 
-    --muted: 300 20% 15%;
-    --muted-foreground: 330 15% 65%;
+    --muted: 330 25% 15%;
+    --muted-foreground: 340 20% 58%;
 
-    --accent: 340 55% 70%;
+    --accent: 350 70% 58%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 300 20% 20%;
-    --input: 300 20% 20%;
-    --ring: 300 25% 70%;
+    --border: 330 25% 18%;
+    --input: 330 25% 18%;
+    --ring: 330 70% 60%;
     
-    --gradient-primary: linear-gradient(135deg, hsl(300 25% 60%), hsl(340 55% 65%));
-    --gradient-soft: linear-gradient(180deg, hsl(300 30% 10%), hsl(320 25% 14%));
+    --gradient-primary: linear-gradient(135deg, hsl(330 65% 52%), hsl(350 70% 55%));
+    --gradient-soft: linear-gradient(180deg, hsl(330 30% 9%), hsl(340 25% 13%));
 
-    --sidebar-background: 300 30% 8%;
-    --sidebar-foreground: 330 20% 95%;
-    --sidebar-primary: 300 25% 70%;
+    --sidebar-background: 330 30% 7%;
+    --sidebar-foreground: 340 30% 92%;
+    --sidebar-primary: 330 70% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 300 20% 14%;
-    --sidebar-accent-foreground: 330 20% 95%;
-    --sidebar-border: 300 20% 18%;
-    --sidebar-ring: 300 25% 70%;
+    --sidebar-accent: 330 25% 13%;
+    --sidebar-accent-foreground: 340 30% 92%;
+    --sidebar-border: 330 25% 16%;
+    --sidebar-ring: 330 70% 60%;
   }
 }
 
