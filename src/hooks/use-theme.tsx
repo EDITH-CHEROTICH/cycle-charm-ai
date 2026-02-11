@@ -15,7 +15,7 @@ const THEME_KEY = "cc_theme";
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
     const stored = localStorage.getItem(THEME_KEY);
-    return (stored as Theme) || "system";
+    return (stored as Theme) || "light";
   });
 
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
