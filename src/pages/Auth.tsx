@@ -11,6 +11,8 @@ import heroImage from "@/assets/hero-gradient.jpg";
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [ageVerified, setAgeVerified] = useState(false);
+  const [ageBlocked, setAgeBlocked] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -149,6 +151,57 @@ const Auth = () => {
               </button>
             </div>
           </form>
+        ) : !isLogin && !ageVerified ? (
+          // Age verification gate before sign-up
+          ageBlocked ? (
+            <div className="text-center space-y-4">
+              <div className="text-5xl mb-2">🚫</div>
+              <h3 className="text-xl font-semibold">Sorry, babe!</h3>
+              <p className="text-muted-foreground">
+                You must be at least 16 years old to use Cycle Charm. Come back when you're older! 💜
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => { setAgeBlocked(false); setIsLogin(true); }}
+                className="w-full"
+              >
+                Back to Sign In
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="text-center mb-4">
+                <div className="text-5xl mb-2">🌸</div>
+                <h3 className="text-xl font-semibold">Before we start...</h3>
+                <p className="text-muted-foreground mt-2">
+                  Are you 16 years of age or older?
+                </p>
+              </div>
+              <div className="flex gap-4">
+                <Button
+                  onClick={() => setAgeVerified(true)}
+                  className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                >
+                  Yes, I'm 16+
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setAgeBlocked(true)}
+                  className="flex-1"
+                >
+                  No, I'm under 16
+                </Button>
+              </div>
+              <div className="text-center mt-4">
+                <button
+                  onClick={() => setIsLogin(true)}
+                  className="text-sm text-primary hover:text-accent transition-colors"
+                >
+                  Already have an account? Sign in
+                </button>
+              </div>
+            </div>
+          )
         ) : (
           <>
             <form onSubmit={handleAuth} className="space-y-4">
@@ -216,7 +269,7 @@ const Auth = () => {
 
             <div className="mt-6 text-center">
               <button
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => { setIsLogin(!isLogin); setAgeVerified(false); }}
                 className="text-sm text-primary hover:text-accent transition-colors"
               >
                 {isLogin
