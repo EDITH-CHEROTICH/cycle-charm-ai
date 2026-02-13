@@ -142,7 +142,7 @@ const Terms = () => {
               If you have any questions about these Terms, please contact us at:
             </p>
             <p className="mt-2">
-              <strong>Email:</strong> support@cyclecharm.app
+              <strong>Email:</strong> cyclecharmai@gmail.com
             </p>
           </section>
         </div>

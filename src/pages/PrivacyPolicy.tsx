@@ -120,7 +120,7 @@ const PrivacyPolicy = () => {
               If you have any questions about this Privacy Policy, please contact us at:
             </p>
             <p className="mt-2">
-              <strong>Email:</strong> privacy@cyclecharm.app
+              <strong>Email:</strong> cyclecharmai@gmail.com
             </p>
           </section>
         </div>
