@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import Subscription from "./pages/Subscription";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
+import DeleteAccount from "./pages/DeleteAccount";
 import NotFound from "./pages/NotFound";
 import { initializeRevenueCat } from "@/lib/revenue-cat";
 import { initializeNotifications } from "@/lib/notifications";
@@ -42,6 +43,7 @@ const AppContent = () => {
       <Route path="/subscription" element={<Subscription />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<Terms />} />
+      <Route path="/delete-account" element={<DeleteAccount />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
