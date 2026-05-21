@@ -101,6 +101,17 @@ const PHASE_META: Record<
     reminder:
       "Hey love, feelings might be louder today and that's okay. Light a candle, soft blanket, favorite snack — you're so deserving.",
   },
+  delayed: {
+    label: "Period Delayed",
+    avatar: avatarDelayed,
+    bubble: "Eek! Where is she?! 😨💗",
+    description: "Your period seems to be running late, babe. Don't panic — bodies are mysterious!",
+    tagEmoji: "⏰",
+    dayLabel: (d, _t) => (d === 1 ? `1 day late 😳` : `${d} days late 😳`),
+    tip: "Late periods happen — stress, sleep, travel, all of it counts. Breathe, hydrate, and be kind to yourself 💕",
+    reminder:
+      "Hey love, your period is taking its sweet time. That's okay — it doesn't always run on schedule. If it's been a while or you're worried, I'm here, and so is your doctor. You're not alone 🤍",
+  },
 };
 
 const Dashboard = () => {
