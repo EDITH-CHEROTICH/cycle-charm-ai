@@ -38,6 +38,7 @@ import avatarFollicular from "@/assets/avatar-follicular.png";
 import avatarPeriod from "@/assets/avatar-period.png";
 import avatarOvulation from "@/assets/avatar-ovulation.png";
 import avatarLuteal from "@/assets/avatar-luteal.png";
+import avatarDelayed from "@/assets/avatar-delayed.png";
 import sleepingKitten from "@/assets/sleeping-kitten.png";
 import moonCloud from "@/assets/moon-cloud.png";
 
