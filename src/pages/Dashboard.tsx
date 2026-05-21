@@ -653,14 +653,20 @@ const Dashboard = () => {
                 loading="lazy"
               />
               <div className="flex-1">
-                <p className="font-bold text-primary">Next Period</p>
+                <p className="font-bold text-primary">{isDelayed ? "Expected Period" : "Next Period"}</p>
                 <p className="text-sm text-muted-foreground">
                   {nextPeriodDate ? format(nextPeriodDate, "MMMM d, yyyy") : "Calculating..."}
                 </p>
               </div>
-              <Badge variant="outline" className="border-accent text-accent rounded-full">
-                In {daysUntilNext} days
-              </Badge>
+              {isDelayed ? (
+                <Badge variant="outline" className="border-destructive text-destructive rounded-full">
+                  {delayDays}d late
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="border-accent text-accent rounded-full">
+                  In {daysUntilNext} days
+                </Badge>
+              )}
             </div>
           </Card>
 
