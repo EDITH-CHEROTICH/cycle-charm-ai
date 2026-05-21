@@ -42,7 +42,7 @@ import avatarDelayed from "@/assets/avatar-delayed.png";
 import sleepingKitten from "@/assets/sleeping-kitten.png";
 import moonCloud from "@/assets/moon-cloud.png";
 
-type PhaseKey = "period" | "follicular" | "ovulation" | "luteal";
+type PhaseKey = "period" | "follicular" | "ovulation" | "luteal" | "delayed";
 
 const PHASE_META: Record<
   PhaseKey,
