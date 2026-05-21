@@ -552,6 +552,37 @@ const Dashboard = () => {
             </div>
           </Card>
 
+          {/* Period delay prompt */}
+          {isDelayed && !promptDismissed && (
+            <Card className="p-5 bg-gradient-to-br from-[hsl(340_80%_94%)] to-[hsl(320_70%_90%)] border-accent/40">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="text-3xl">💗</div>
+                <div className="flex-1">
+                  <p className="font-bold text-accent">Hey love, has your period started?</p>
+                  <p className="text-xs text-foreground/70 mt-1">
+                    It's {delayDays} {delayDays === 1 ? "day" : "days"} past your expected date. Let me know so I can stay accurate for you.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handlePeriodStarted}
+                  disabled={confirmingPeriod}
+                  className="flex-1 bg-gradient-to-r from-primary to-accent text-primary-foreground"
+                >
+                  Yes, it started 🌸
+                </Button>
+                <Button
+                  onClick={handleNotYet}
+                  variant="outline"
+                  className="flex-1 border-accent/40 text-accent"
+                >
+                  Not yet 💭
+                </Button>
+              </div>
+            </Card>
+          )}
+
           {/* Stats grid */}
           <div className="grid grid-cols-2 gap-3">
             <Card className="p-4 border-primary/20 bg-card">
