@@ -341,7 +341,31 @@ const Dashboard = () => {
       Math.round((today.getTime() - lastPeriod.getTime()) / 86400000),
     );
 
-    const day = (daysSinceLastPeriod % totalCycle) + 1; // 1-indexed
+    const nextStart = new Date(lastPeriod.getTime() + totalCycle * 86400000);
+    setNextPeriodDate(nextStart);
+
+    // DELAYED: today is past the expected next period start and no new period logged
+    if (daysSinceLastPeriod >= totalCycle) {
+      const late = daysSinceLastPeriod - totalCycle + 1;
+      setIsDelayed(true);
+      setDelayDays(late);
+      setPhaseKey("delayed");
+      setDayInPhase(late);
+      setPhaseLength(late);
+      setCycleDay(totalCycle);
+      setDaysUntilNext(0);
+      setIsInFertileWindow(false);
+
+      // Check if user already said "not yet" today
+      const dismissedKey = `period-delay-dismissed-${today.toISOString().split("T")[0]}`;
+      setPromptDismissed(localStorage.getItem(dismissedKey) === "1");
+      return;
+    }
+
+    setIsDelayed(false);
+    setDelayDays(0);
+
+    const day = daysSinceLastPeriod + 1; // 1-indexed within current cycle
     setCycleDay(day);
 
     const ovulationDay = totalCycle - 14; // typical
@@ -374,16 +398,45 @@ const Dashboard = () => {
     setDayInPhase(Math.max(1, dayIn));
     setPhaseLength(Math.max(1, len));
 
-    const nextStart = new Date(lastPeriod.getTime() + totalCycle * 86400000);
-    setNextPeriodDate(nextStart);
     const nextDays = Math.max(
       0,
-      Math.round((nextStart.getTime() - today.getTime()) / 86400000) % totalCycle,
+      Math.round((nextStart.getTime() - today.getTime()) / 86400000),
     );
     setDaysUntilNext(nextDays);
 
     const inFertile = day >= ovulationDay - 4 && day <= ovulationDay + 1;
     setIsInFertileWindow(inFertile);
+  };
+
+  const handlePeriodStarted = async () => {
+    setConfirmingPeriod(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+      await supabase.from("period_logs").insert({
+        user_id: user.id,
+        start_date: todayStr,
+        flow_intensity: "medium",
+      });
+      await supabase
+        .from("cycle_data")
+        .update({ last_period_date: todayStr, updated_at: new Date().toISOString() })
+        .eq("user_id", user.id);
+      toast({ title: "Period logged 💕", description: "Welcome to day 1, beautiful." });
+      await fetchData();
+    } catch (e: any) {
+      toast({ title: "Couldn't save", description: e.message, variant: "destructive" });
+    } finally {
+      setConfirmingPeriod(false);
+    }
+  };
+
+  const handleNotYet = () => {
+    const today = toUtcMidnight(new Date()).toISOString().split("T")[0];
+    localStorage.setItem(`period-delay-dismissed-${today}`, "1");
+    setPromptDismissed(true);
   };
 
   if (loading) {
