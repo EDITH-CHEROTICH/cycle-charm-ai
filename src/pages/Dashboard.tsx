@@ -126,6 +126,10 @@ const Dashboard = () => {
   const [nextPeriodDate, setNextPeriodDate] = useState<Date | null>(null);
   const [isInFertileWindow, setIsInFertileWindow] = useState(false);
   const [todaySymptoms, setTodaySymptoms] = useState<string[]>([]);
+  const [isDelayed, setIsDelayed] = useState(false);
+  const [delayDays, setDelayDays] = useState(0);
+  const [promptDismissed, setPromptDismissed] = useState(false);
+  const [confirmingPeriod, setConfirmingPeriod] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isOnline, isInitialized } = useOffline();
