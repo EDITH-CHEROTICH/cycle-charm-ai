@@ -591,8 +591,12 @@ const Dashboard = () => {
                   <Calendar className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-accent leading-none">{daysUntilNext}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Days until period</p>
+                  <p className="text-3xl font-bold text-accent leading-none">
+                    {isDelayed ? `+${delayDays}` : daysUntilNext}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {isDelayed ? "Days late" : "Days until period"}
+                  </p>
                 </div>
               </div>
               <div className="mt-3 flex gap-1 text-accent/40">
