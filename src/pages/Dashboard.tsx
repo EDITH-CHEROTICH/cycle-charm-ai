@@ -38,10 +38,11 @@ import avatarFollicular from "@/assets/avatar-follicular.png";
 import avatarPeriod from "@/assets/avatar-period.png";
 import avatarOvulation from "@/assets/avatar-ovulation.png";
 import avatarLuteal from "@/assets/avatar-luteal.png";
+import avatarDelayed from "@/assets/avatar-delayed.png";
 import sleepingKitten from "@/assets/sleeping-kitten.png";
 import moonCloud from "@/assets/moon-cloud.png";
 
-type PhaseKey = "period" | "follicular" | "ovulation" | "luteal";
+type PhaseKey = "period" | "follicular" | "ovulation" | "luteal" | "delayed";
 
 const PHASE_META: Record<
   PhaseKey,
@@ -100,6 +101,17 @@ const PHASE_META: Record<
     reminder:
       "Hey love, feelings might be louder today and that's okay. Light a candle, soft blanket, favorite snack — you're so deserving.",
   },
+  delayed: {
+    label: "Period Delayed",
+    avatar: avatarDelayed,
+    bubble: "Eek! Where is she?! 😨💗",
+    description: "Your period seems to be running late, babe. Don't panic — bodies are mysterious!",
+    tagEmoji: "⏰",
+    dayLabel: (d, _t) => (d === 1 ? `1 day late 😳` : `${d} days late 😳`),
+    tip: "Late periods happen — stress, sleep, travel, all of it counts. Breathe, hydrate, and be kind to yourself 💕",
+    reminder:
+      "Hey love, your period is taking its sweet time. That's okay — it doesn't always run on schedule. If it's been a while or you're worried, I'm here, and so is your doctor. You're not alone 🤍",
+  },
 };
 
 const Dashboard = () => {
@@ -114,6 +126,10 @@ const Dashboard = () => {
   const [nextPeriodDate, setNextPeriodDate] = useState<Date | null>(null);
   const [isInFertileWindow, setIsInFertileWindow] = useState(false);
   const [todaySymptoms, setTodaySymptoms] = useState<string[]>([]);
+  const [isDelayed, setIsDelayed] = useState(false);
+  const [delayDays, setDelayDays] = useState(0);
+  const [promptDismissed, setPromptDismissed] = useState(false);
+  const [confirmingPeriod, setConfirmingPeriod] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isOnline, isInitialized } = useOffline();
@@ -325,7 +341,31 @@ const Dashboard = () => {
       Math.round((today.getTime() - lastPeriod.getTime()) / 86400000),
     );
 
-    const day = (daysSinceLastPeriod % totalCycle) + 1; // 1-indexed
+    const nextStart = new Date(lastPeriod.getTime() + totalCycle * 86400000);
+    setNextPeriodDate(nextStart);
+
+    // DELAYED: today is past the expected next period start and no new period logged
+    if (daysSinceLastPeriod >= totalCycle) {
+      const late = daysSinceLastPeriod - totalCycle + 1;
+      setIsDelayed(true);
+      setDelayDays(late);
+      setPhaseKey("delayed");
+      setDayInPhase(late);
+      setPhaseLength(late);
+      setCycleDay(totalCycle);
+      setDaysUntilNext(0);
+      setIsInFertileWindow(false);
+
+      // Check if user already said "not yet" today
+      const dismissedKey = `period-delay-dismissed-${today.toISOString().split("T")[0]}`;
+      setPromptDismissed(localStorage.getItem(dismissedKey) === "1");
+      return;
+    }
+
+    setIsDelayed(false);
+    setDelayDays(0);
+
+    const day = daysSinceLastPeriod + 1; // 1-indexed within current cycle
     setCycleDay(day);
 
     const ovulationDay = totalCycle - 14; // typical
@@ -358,16 +398,45 @@ const Dashboard = () => {
     setDayInPhase(Math.max(1, dayIn));
     setPhaseLength(Math.max(1, len));
 
-    const nextStart = new Date(lastPeriod.getTime() + totalCycle * 86400000);
-    setNextPeriodDate(nextStart);
     const nextDays = Math.max(
       0,
-      Math.round((nextStart.getTime() - today.getTime()) / 86400000) % totalCycle,
+      Math.round((nextStart.getTime() - today.getTime()) / 86400000),
     );
     setDaysUntilNext(nextDays);
 
     const inFertile = day >= ovulationDay - 4 && day <= ovulationDay + 1;
     setIsInFertileWindow(inFertile);
+  };
+
+  const handlePeriodStarted = async () => {
+    setConfirmingPeriod(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+      await supabase.from("period_logs").insert({
+        user_id: user.id,
+        start_date: todayStr,
+        flow_intensity: "medium",
+      });
+      await supabase
+        .from("cycle_data")
+        .update({ last_period_date: todayStr, updated_at: new Date().toISOString() })
+        .eq("user_id", user.id);
+      toast({ title: "Period logged 💕", description: "Welcome to day 1, beautiful." });
+      await fetchData();
+    } catch (e: any) {
+      toast({ title: "Couldn't save", description: e.message, variant: "destructive" });
+    } finally {
+      setConfirmingPeriod(false);
+    }
+  };
+
+  const handleNotYet = () => {
+    const today = toUtcMidnight(new Date()).toISOString().split("T")[0];
+    localStorage.setItem(`period-delay-dismissed-${today}`, "1");
+    setPromptDismissed(true);
   };
 
   if (loading) {
@@ -483,6 +552,37 @@ const Dashboard = () => {
             </div>
           </Card>
 
+          {/* Period delay prompt */}
+          {isDelayed && !promptDismissed && (
+            <Card className="p-5 bg-gradient-to-br from-[hsl(340_80%_94%)] to-[hsl(320_70%_90%)] border-accent/40">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="text-3xl">💗</div>
+                <div className="flex-1">
+                  <p className="font-bold text-accent">Hey love, has your period started?</p>
+                  <p className="text-xs text-foreground/70 mt-1">
+                    It's {delayDays} {delayDays === 1 ? "day" : "days"} past your expected date. Let me know so I can stay accurate for you.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handlePeriodStarted}
+                  disabled={confirmingPeriod}
+                  className="flex-1 bg-gradient-to-r from-primary to-accent text-primary-foreground"
+                >
+                  Yes, it started 🌸
+                </Button>
+                <Button
+                  onClick={handleNotYet}
+                  variant="outline"
+                  className="flex-1 border-accent/40 text-accent"
+                >
+                  Not yet 💭
+                </Button>
+              </div>
+            </Card>
+          )}
+
           {/* Stats grid */}
           <div className="grid grid-cols-2 gap-3">
             <Card className="p-4 border-primary/20 bg-card">
@@ -491,8 +591,12 @@ const Dashboard = () => {
                   <Calendar className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-accent leading-none">{daysUntilNext}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Days until period</p>
+                  <p className="text-3xl font-bold text-accent leading-none">
+                    {isDelayed ? `+${delayDays}` : daysUntilNext}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {isDelayed ? "Days late" : "Days until period"}
+                  </p>
                 </div>
               </div>
               <div className="mt-3 flex gap-1 text-accent/40">
@@ -553,14 +657,20 @@ const Dashboard = () => {
                 loading="lazy"
               />
               <div className="flex-1">
-                <p className="font-bold text-primary">Next Period</p>
+                <p className="font-bold text-primary">{isDelayed ? "Expected Period" : "Next Period"}</p>
                 <p className="text-sm text-muted-foreground">
                   {nextPeriodDate ? format(nextPeriodDate, "MMMM d, yyyy") : "Calculating..."}
                 </p>
               </div>
-              <Badge variant="outline" className="border-accent text-accent rounded-full">
-                In {daysUntilNext} days
-              </Badge>
+              {isDelayed ? (
+                <Badge variant="outline" className="border-destructive text-destructive rounded-full">
+                  {delayDays}d late
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="border-accent text-accent rounded-full">
+                  In {daysUntilNext} days
+                </Badge>
+              )}
             </div>
           </Card>
 
