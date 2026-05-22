@@ -10,6 +10,8 @@ import { Send } from "lucide-react";
 import aiAvatar from "@/assets/ai-avatar.jpg";
 import { showBannerAd, hideBannerAd } from "@/lib/admob";
 import { usePremium } from "@/hooks/use-premium";
+import { useFeatureLimit } from "@/hooks/use-feature-limit";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 type Message = {
   role: "user" | "assistant";
@@ -30,6 +32,8 @@ const Chat = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isPremium } = usePremium();
+  const FREE_CHAT_LIMIT = 5;
+  const chatLimit = useFeatureLimit("chat", FREE_CHAT_LIMIT);
 
   // Show banner ad for free users
   useEffect(() => {
@@ -59,11 +63,20 @@ const Chat = () => {
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
+    if (chatLimit.reached) {
+      toast({
+        title: "Daily chat limit reached 💜",
+        description: `Free users get ${FREE_CHAT_LIMIT} AI chats per day. Upgrade for unlimited.`,
+        variant: "destructive",
+      });
+      return;
+    }
 
     const userMessage: Message = { role: "user", content: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
+    chatLimit.increment();
 
     let assistantContent = "";
 
@@ -191,15 +204,23 @@ const Chat = () => {
         </div>
 
         <div className="fixed bottom-20 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-primary/20 p-4">
-          <div className="max-w-md mx-auto flex gap-2">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-              placeholder="Type your message, darling..."
-              disabled={loading}
-              className="flex-1 border-primary/30"
-            />
+          <div className="max-w-md mx-auto space-y-2">
+            {!isPremium && (
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{chatLimit.remaining} of {FREE_CHAT_LIMIT} free chats left today</span>
+                {chatLimit.reached && <span className="text-primary font-medium">Upgrade for unlimited 💜</span>}
+              </div>
+            )}
+            {chatLimit.reached && <UpgradePrompt compact title="You've used today's free chats" />}
+            <div className="flex gap-2">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                placeholder="Type your message, darling..."
+                disabled={loading || chatLimit.reached}
+                className="flex-1 border-primary/30"
+              />
             <Button
               onClick={sendMessage}
               disabled={loading || !input.trim()}
