@@ -221,13 +221,14 @@ const Chat = () => {
                 disabled={loading || chatLimit.reached}
                 className="flex-1 border-primary/30"
               />
-            <Button
-              onClick={sendMessage}
-              disabled={loading || !input.trim()}
-              className="bg-gradient-to-r from-primary to-accent"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
+              <Button
+                onClick={sendMessage}
+                disabled={loading || !input.trim() || chatLimit.reached}
+                className="bg-gradient-to-r from-primary to-accent"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
