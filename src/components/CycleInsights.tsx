@@ -7,13 +7,16 @@ import {
   BarChart, Bar, PieChart, Pie, Cell
 } from "recharts";
 import { format, subMonths, differenceInDays } from "date-fns";
-import { TrendingUp, Calendar, Activity, Heart } from "lucide-react";
+import { TrendingUp, Calendar, Activity, Heart, Lock } from "lucide-react";
+import { usePremium } from "@/hooks/use-premium";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 interface CycleInsightsProps {
   refreshTrigger?: number;
 }
 
 export const CycleInsights = ({ refreshTrigger }: CycleInsightsProps) => {
+  const { isPremium } = usePremium();
   const [cycleData, setCycleData] = useState<any[]>([]);
   const [symptomData, setSymptomData] = useState<any[]>([]);
   const [moodData, setMoodData] = useState<any[]>([]);
@@ -190,58 +193,80 @@ export const CycleInsights = ({ refreshTrigger }: CycleInsightsProps) => {
         </TabsContent>
 
         <TabsContent value="symptoms">
-          <Card className="p-4 border-primary/20">
-            <h4 className="font-medium mb-4">Top Symptoms (Last 3 Months)</h4>
-            {symptomData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={symptomData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis type="number" fontSize={12} />
-                  <YAxis dataKey="name" type="category" fontSize={11} width={80} />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-center text-muted-foreground py-8">
-                Start tracking symptoms to see patterns, darling! ✨
+          {!isPremium ? (
+            <Card className="p-6 border-primary/20 text-center">
+              <Lock className="w-10 h-10 mx-auto mb-3 text-primary" />
+              <h4 className="font-semibold mb-2">Symptom Analytics</h4>
+              <p className="text-sm text-muted-foreground mb-4">
+                See your top symptoms and patterns over the last 3 months.
               </p>
-            )}
-          </Card>
+              <UpgradePrompt compact title="Premium feature 💜" />
+            </Card>
+          ) : (
+            <Card className="p-4 border-primary/20">
+              <h4 className="font-medium mb-4">Top Symptoms (Last 3 Months)</h4>
+              {symptomData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={symptomData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis type="number" fontSize={12} />
+                    <YAxis dataKey="name" type="category" fontSize={11} width={80} />
+                    <Tooltip />
+                    <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-center text-muted-foreground py-8">
+                  Start tracking symptoms to see patterns, darling! ✨
+                </p>
+              )}
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="mood">
-          <Card className="p-4 border-primary/20">
-            <h4 className="font-medium mb-4">Mood & Energy (Last 2 Weeks)</h4>
-            {moodData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={moodData}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="date" fontSize={10} />
-                  <YAxis domain={[0, 5]} fontSize={12} />
-                  <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="mood" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
-                    name="Mood"
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="energy" 
-                    stroke="hsl(280 70% 60%)" 
-                    strokeWidth={2}
-                    name="Energy"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-center text-muted-foreground py-8">
-                Log your daily mood to see trends, babe! 💜
+          {!isPremium ? (
+            <Card className="p-6 border-primary/20 text-center">
+              <Lock className="w-10 h-10 mx-auto mb-3 text-primary" />
+              <h4 className="font-semibold mb-2">Mood & Energy Trends</h4>
+              <p className="text-sm text-muted-foreground mb-4">
+                Visualize your mood and energy over the last 2 weeks.
               </p>
-            )}
-          </Card>
+              <UpgradePrompt compact title="Premium feature 💜" />
+            </Card>
+          ) : (
+            <Card className="p-4 border-primary/20">
+              <h4 className="font-medium mb-4">Mood & Energy (Last 2 Weeks)</h4>
+              {moodData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={moodData}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis dataKey="date" fontSize={10} />
+                    <YAxis domain={[0, 5]} fontSize={12} />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="mood"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      name="Mood"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="energy"
+                      stroke="hsl(280 70% 60%)"
+                      strokeWidth={2}
+                      name="Energy"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-center text-muted-foreground py-8">
+                  Log your daily mood to see trends, babe! 💜
+                </p>
+              )}
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>
