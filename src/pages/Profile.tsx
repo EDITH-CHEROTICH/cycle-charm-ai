@@ -247,6 +247,26 @@ const Profile = () => {
           </div>
         </Card>
 
+        {/* Premium Features Section */}
+        <Card className="p-4 border-primary/20 mb-4">
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-primary" />
+            Premium Features
+          </h3>
+          <Link to="/pregnancy" className="block">
+            <Button variant="ghost" className="w-full justify-start">
+              <Baby className="w-4 h-4 mr-2" />
+              Pregnancy Mode
+              {!isPremium && <Crown className="w-3 h-3 ml-auto text-primary" />}
+            </Button>
+          </Link>
+        </Card>
+
+        <div className="mb-4">
+          <ExportData />
+        </div>
+
+
         {/* Settings Section */}
         <Card className="p-4 border-primary/20 mb-4">
           <h3 className="font-semibold mb-3 flex items-center gap-2">
