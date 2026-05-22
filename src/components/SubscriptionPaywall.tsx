@@ -141,16 +141,30 @@ export const SubscriptionPaywall = ({ onSubscribe }: SubscriptionPaywallProps) =
               ))}
             </ul>
             
-            {currentOffering?.availablePackages.map((pkg: any) => (
-              <Button
-                key={pkg.identifier}
-                onClick={() => handlePurchase(pkg.identifier)}
-                disabled={loading}
-                className="w-full mb-2"
-              >
-                {loading ? 'Processing...' : `Subscribe - ${pkg.product.priceString}`}
-              </Button>
-            ))}
+            {currentOffering?.availablePackages?.length ? (
+              currentOffering.availablePackages.map((pkg: any) => (
+                <Button
+                  key={pkg.identifier}
+                  onClick={() => handlePurchase(pkg.identifier)}
+                  disabled={loading}
+                  className="w-full mb-2"
+                >
+                  {loading ? 'Processing...' : `Subscribe - ${pkg.product.priceString}`}
+                </Button>
+              ))
+            ) : (
+              <div className="space-y-2">
+                <Button disabled className="w-full">
+                  Monthly · $2.99 / month
+                </Button>
+                <Button disabled className="w-full bg-gradient-to-r from-primary to-accent">
+                  Yearly · $29.99 / year (save 17%)
+                </Button>
+                <p className="text-xs text-center text-muted-foreground pt-1">
+                  In-app purchases are only available in the mobile app.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
