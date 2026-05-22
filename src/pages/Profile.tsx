@@ -12,8 +12,9 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { usePremium } from "@/hooks/use-premium";
 import { useTheme } from "@/hooks/use-theme";
-import { Crown, Sparkles, Shield, FileText, Bell, LogOut, Moon, Sun } from "lucide-react";
+import { Crown, Sparkles, Shield, FileText, Bell, LogOut, Moon, Sun, Baby } from "lucide-react";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
+import { ExportData } from "@/components/ExportData";
 import { clearCachedData } from "@/hooks/use-offline";
 
 const Profile = () => {
