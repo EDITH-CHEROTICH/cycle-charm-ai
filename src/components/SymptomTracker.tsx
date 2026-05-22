@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, X } from "lucide-react";
+import { useFeatureLimit } from "@/hooks/use-feature-limit";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 const COMMON_SYMPTOMS = [
   "Cramps",
@@ -23,6 +25,9 @@ export const SymptomTracker = () => {
   const [todaySymptoms, setTodaySymptoms] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const FREE_SYMPTOM_LIMIT = 3;
+  const { isPremium, reached } = useFeatureLimit("symptoms", FREE_SYMPTOM_LIMIT);
+  const atFreeLimit = !isPremium && todaySymptoms.length >= FREE_SYMPTOM_LIMIT;
 
   useEffect(() => {
     loadTodaySymptoms();
@@ -57,6 +62,15 @@ export const SymptomTracker = () => {
       if (!user) return;
 
       const isActive = todaySymptoms.includes(symptom);
+
+      if (!isActive && !isPremium && todaySymptoms.length >= FREE_SYMPTOM_LIMIT) {
+        toast({
+          title: "Free limit reached 💜",
+          description: `Free users can track ${FREE_SYMPTOM_LIMIT} symptoms per day. Upgrade for unlimited.`,
+          variant: "destructive",
+        });
+        return;
+      }
 
       if (isActive) {
         // Remove symptom
@@ -101,10 +115,18 @@ export const SymptomTracker = () => {
 
   return (
     <Card className="p-6 border-primary/20">
-      <h3 className="font-semibold text-lg mb-4">Today's Symptoms</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-semibold text-lg">Today's Symptoms</h3>
+        {!isPremium && (
+          <span className="text-xs text-muted-foreground">
+            {todaySymptoms.length}/{FREE_SYMPTOM_LIMIT} free
+          </span>
+        )}
+      </div>
       <div className="flex flex-wrap gap-2">
         {COMMON_SYMPTOMS.map((symptom) => {
           const isActive = todaySymptoms.includes(symptom);
+          const disabled = !isActive && atFreeLimit;
           return (
             <Badge
               key={symptom}
@@ -112,9 +134,11 @@ export const SymptomTracker = () => {
               className={`cursor-pointer transition-all ${
                 isActive
                   ? "bg-gradient-to-r from-primary to-accent"
-                  : "hover:border-primary"
+                  : disabled
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:border-primary"
               }`}
-              onClick={() => toggleSymptom(symptom)}
+              onClick={() => !disabled && toggleSymptom(symptom)}
             >
               {isActive ? (
                 <X className="w-3 h-3 mr-1" />
@@ -129,6 +153,14 @@ export const SymptomTracker = () => {
       <p className="text-xs text-muted-foreground mt-4">
         Tap to add or remove symptoms you're experiencing today
       </p>
+      {atFreeLimit && (
+        <div className="mt-4">
+          <UpgradePrompt
+            compact
+            title="Unlock unlimited symptom tracking 💜"
+          />
+        </div>
+      )}
     </Card>
   );
 };
