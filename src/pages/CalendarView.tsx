@@ -7,8 +7,9 @@ import { DailyLogger } from "@/components/DailyLogger";
 import { PeriodLogger } from "@/components/PeriodLogger";
 import { PeriodHistory } from "@/components/PeriodHistory";
 import { CycleInsights } from "@/components/CycleInsights";
+import { CycleComparison } from "@/components/CycleComparison";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Pencil, BarChart3, History } from "lucide-react";
+import { Calendar, Pencil, BarChart3, History, GitCompare } from "lucide-react";
 import { showBannerAd, hideBannerAd, prepareInterstitialAd, showInterstitialAd } from "@/lib/admob";
 import { usePremium } from "@/hooks/use-premium";
 
@@ -95,8 +96,9 @@ const CalendarView = () => {
             />
           </TabsContent>
 
-          <TabsContent value="insights">
+          <TabsContent value="insights" className="space-y-4">
             <CycleInsights refreshTrigger={refreshTrigger} />
+            <CycleComparison />
           </TabsContent>
 
           <TabsContent value="history">
