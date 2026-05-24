@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { usePremium } from "@/hooks/use-premium";
 import { useTheme } from "@/hooks/use-theme";
-import { Crown, Sparkles, Shield, FileText, Bell, LogOut, Moon, Sun, Baby } from "lucide-react";
+import { Crown, Sparkles, Shield, FileText, Bell, LogOut, Moon, Sun, Baby, Heart } from "lucide-react";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import { ExportData } from "@/components/ExportData";
 import { clearCachedData } from "@/hooks/use-offline";
@@ -257,6 +257,13 @@ const Profile = () => {
             <Button variant="ghost" className="w-full justify-start">
               <Baby className="w-4 h-4 mr-2" />
               Pregnancy Mode
+              {!isPremium && <Crown className="w-3 h-3 ml-auto text-primary" />}
+            </Button>
+          </Link>
+          <Link to="/partner" className="block">
+            <Button variant="ghost" className="w-full justify-start">
+              <Heart className="w-4 h-4 mr-2" />
+              Partner Access
               {!isPremium && <Crown className="w-3 h-3 ml-auto text-primary" />}
             </Button>
           </Link>

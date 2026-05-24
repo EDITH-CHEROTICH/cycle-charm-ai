@@ -16,6 +16,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import DeleteAccount from "./pages/DeleteAccount";
 import Pregnancy from "./pages/Pregnancy";
+import Partner from "./pages/Partner";
 import NotFound from "./pages/NotFound";
 import { initializeRevenueCat } from "@/lib/revenue-cat";
 import { initializeNotifications } from "@/lib/notifications";
@@ -46,6 +47,7 @@ const AppContent = () => {
       <Route path="/terms" element={<Terms />} />
       <Route path="/delete-account" element={<DeleteAccount />} />
       <Route path="/pregnancy" element={<Pregnancy />} />
+      <Route path="/partner" element={<Partner />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
