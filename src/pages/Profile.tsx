@@ -260,6 +260,13 @@ const Profile = () => {
               {!isPremium && <Crown className="w-3 h-3 ml-auto text-primary" />}
             </Button>
           </Link>
+          <Link to="/partner" className="block">
+            <Button variant="ghost" className="w-full justify-start">
+              <Heart className="w-4 h-4 mr-2" />
+              Partner Access
+              {!isPremium && <Crown className="w-3 h-3 ml-auto text-primary" />}
+            </Button>
+          </Link>
         </Card>
 
         <div className="mb-4">
