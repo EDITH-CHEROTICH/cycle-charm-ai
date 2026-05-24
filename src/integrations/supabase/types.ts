@@ -80,6 +80,39 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_links: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          id: string
+          invite_code: string
+          owner_id: string
+          partner_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          id?: string
+          invite_code: string
+          owner_id: string
+          partner_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          id?: string
+          invite_code?: string
+          owner_id?: string
+          partner_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       period_logs: {
         Row: {
           created_at: string | null
@@ -166,7 +199,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_partner_access: {
+        Args: { _owner: string; _viewer: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
