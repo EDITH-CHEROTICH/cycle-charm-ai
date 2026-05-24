@@ -47,6 +47,7 @@ const AppContent = () => {
       <Route path="/terms" element={<Terms />} />
       <Route path="/delete-account" element={<DeleteAccount />} />
       <Route path="/pregnancy" element={<Pregnancy />} />
+      <Route path="/partner" element={<Partner />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
