@@ -94,8 +94,11 @@ const Profile = () => {
         .update({
           average_cycle_length: parseInt(cycleLength),
           average_period_length: parseInt(periodLength),
+          ...(lastPeriodDate ? { last_period_date: lastPeriodDate } : {}),
         })
         .eq("user_id", user.id);
+
+      setCycleData((prev: any) => ({ ...prev, last_period_date: lastPeriodDate }));
 
       toast({
         title: "Saved!",
@@ -110,6 +113,7 @@ const Profile = () => {
       });
     }
   };
+
 
   const handleLogout = async () => {
     clearCachedData();
