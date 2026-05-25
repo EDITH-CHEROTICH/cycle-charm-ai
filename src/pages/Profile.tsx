@@ -222,7 +222,36 @@ const Profile = () => {
                 <p className="text-lg font-medium">{periodLength} days</p>
               )}
             </div>
+
+            <div>
+              <Label>Last Period Start Date</Label>
+              {editing ? (
+                <>
+                  <Input
+                    type="date"
+                    value={lastPeriodDate}
+                    max={new Date().toISOString().split("T")[0]}
+                    onChange={(e) => setLastPeriodDate(e.target.value)}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Update this if your tracking got off, babe 💜
+                  </p>
+                </>
+              ) : (
+                <p className="text-lg font-medium">
+                  {lastPeriodDate
+                    ? new Date(lastPeriodDate).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "Not set"}
+                </p>
+              )}
+            </div>
           </div>
+
 
           <div className="flex gap-2 mt-6">
             {editing ? (
