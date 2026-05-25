@@ -25,19 +25,14 @@ const Profile = () => {
   const [contraception, setContraception] = useState("");
   const [cycleLength, setCycleLength] = useState("");
   const [periodLength, setPeriodLength] = useState("");
+  const [lastPeriodDate, setLastPeriodDate] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isPremium, loading: premiumLoading } = usePremium();
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
-    const loadData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/auth");
-        return;
-      }
-
+    const loadData = async (session: any) => {
       const { data: profileData } = await supabase
         .from("profiles")
         .select("*")
@@ -56,10 +51,30 @@ const Profile = () => {
       setContraception(profileData?.contraception_use || "");
       setCycleLength(cycleInfo?.average_cycle_length?.toString() || "");
       setPeriodLength(cycleInfo?.average_period_length?.toString() || "");
+      setLastPeriodDate(cycleInfo?.last_period_date || "");
     };
 
-    loadData();
+    // Set up auth listener FIRST for proper session persistence
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        loadData(session);
+      }
+    });
+
+    // Then check existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        loadData(session);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
+
 
   const handleSave = async () => {
     try {
