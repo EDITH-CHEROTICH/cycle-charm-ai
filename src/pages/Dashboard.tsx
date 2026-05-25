@@ -484,19 +484,6 @@ const Dashboard = () => {
 
       <div className="max-w-md mx-auto px-4 pt-6">
         {/* Top bar */}
-        <div className="flex items-center justify-between mb-4">
-          <button className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center border border-border/50">
-            <span className="text-primary text-lg">≡</span>
-          </button>
-          <button
-            onClick={() => navigate("/calendar")}
-            className="w-10 h-10 rounded-full bg-card shadow-sm flex items-center justify-center border border-border/50 relative"
-            aria-label="Reminders"
-          >
-            <Bell className="w-5 h-5 text-primary" />
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-accent" />
-          </button>
-        </div>
 
         {/* Greeting + avatar + speech bubble */}
         <div className="relative mb-3">
