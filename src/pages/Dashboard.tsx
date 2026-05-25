@@ -571,9 +571,10 @@ const Dashboard = () => {
               </div>
             </Card>
           )}
-
-
+          {/* Period delay prompt */}
+          {isDelayed && !promptDismissed && (
             <Card className="p-5 bg-gradient-to-br from-[hsl(340_80%_94%)] to-[hsl(320_70%_90%)] border-accent/40">
+
               <div className="flex items-start gap-3 mb-3">
                 <div className="text-3xl">💗</div>
                 <div className="flex-1">
