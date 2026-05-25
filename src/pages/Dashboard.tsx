@@ -473,6 +473,27 @@ const Dashboard = () => {
 
   const dailyNote = buildDailyNote();
 
+  // Contraception-aware messaging
+  const contraceptionRaw = (profile?.contraception_use || "").trim().toLowerCase();
+  const onContraception =
+    contraceptionRaw.length > 0 &&
+    !["none", "no", "n/a", "na", "nothing"].includes(contraceptionRaw);
+  const isHormonal = /pill|patch|ring|implant|injection|shot|depo|hormonal|mirena|kyleena|iud|nexplanon|nuvaring/.test(
+    contraceptionRaw
+  );
+  const contraceptionPhaseNote = onContraception
+    ? phaseKey === "period"
+      ? isHormonal
+        ? "Heads up, love: since you're on hormonal contraception, your bleed may be lighter, shorter, or feel different — that's completely normal 💕"
+        : "A gentle reminder: your contraception can shape how this bleed feels. Listen to your body, darling 💕"
+      : phaseKey === "delayed"
+      ? isHormonal
+        ? "Sweet reminder: hormonal contraception can delay, lighten, or even skip your period — it doesn't always mean something's wrong. Still, if you're worried, a test or your doctor is your best friend 🤍"
+        : "Your contraception can sometimes shift your cycle, babe. Breathe — late doesn't always mean pregnant. If you're unsure, take a test or check in with your doctor 🤍"
+      : null
+    : null;
+
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[hsl(330_60%_96%)] via-background to-[hsl(310_45%_94%)] pb-24">
       {!isOnline && (
