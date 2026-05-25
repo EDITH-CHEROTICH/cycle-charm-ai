@@ -560,8 +560,19 @@ const Dashboard = () => {
             </div>
           </Card>
 
-          {/* Period delay prompt */}
-          {isDelayed && !promptDismissed && (
+          {/* Contraception-aware reassurance */}
+          {contraceptionPhaseNote && (
+            <Card className="p-4 bg-gradient-to-r from-primary/5 to-accent/10 border-primary/20">
+              <div className="flex items-start gap-3">
+                <div className="text-2xl">💊</div>
+                <p className="text-sm text-foreground/80 leading-relaxed">
+                  {contraceptionPhaseNote}
+                </p>
+              </div>
+            </Card>
+          )}
+
+
             <Card className="p-5 bg-gradient-to-br from-[hsl(340_80%_94%)] to-[hsl(320_70%_90%)] border-accent/40">
               <div className="flex items-start gap-3 mb-3">
                 <div className="text-3xl">💗</div>
