@@ -325,9 +325,50 @@ const PartnerInner = () => {
                         <Button size="icon" variant="ghost" onClick={() => copyCode(inv.invite_code)}>
                           <Copy className="w-4 h-4" />
                         </Button>
-                        <Button size="icon" variant="ghost" onClick={() => shareCode(inv.invite_code)}>
-                          <Share2 className="w-4 h-4" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={async (e) => {
+                                // Prefer native share sheet on mobile (gives WhatsApp, Snapchat, etc.)
+                                if (navigator.share) {
+                                  e.preventDefault();
+                                  const ok = await nativeShare(inv.invite_code);
+                                  if (ok) return;
+                                }
+                              }}
+                            >
+                              <Share2 className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={() => shareTo("whatsapp", inv.invite_code)}>
+                              <MessageCircle className="w-4 h-4 mr-2 text-emerald-600" /> WhatsApp
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => shareTo("snapchat", inv.invite_code)}>
+                              <Sparkles className="w-4 h-4 mr-2 text-yellow-500" /> Snapchat
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => shareTo("twitter", inv.invite_code)}>
+                              <Twitter className="w-4 h-4 mr-2 text-sky-500" /> Twitter / X
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => shareTo("telegram", inv.invite_code)}>
+                              <Send className="w-4 h-4 mr-2 text-sky-600" /> Telegram
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => shareTo("facebook", inv.invite_code)}>
+                              <Share2 className="w-4 h-4 mr-2 text-blue-600" /> Facebook
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => shareTo("sms", inv.invite_code)}>
+                              <MessageCircle className="w-4 h-4 mr-2" /> SMS / Messages
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => shareTo("email", inv.invite_code)}>
+                              <Mail className="w-4 h-4 mr-2" /> Email
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => copyCode(inv.invite_code)}>
+                              <Copy className="w-4 h-4 mr-2" /> Copy code
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </>
                     )}
                     <Button size="icon" variant="ghost" onClick={() => revokeInvite(inv.id)}>
