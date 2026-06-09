@@ -87,7 +87,7 @@ const Pregnancy = () => {
           </h1>
         </div>
 
-        {!isPremium ? (
+        {!isPremium && !previewMode ? (
           <Card className="p-6 border-primary/20 text-center">
             <Lock className="w-12 h-12 mx-auto mb-4 text-primary" />
             <h3 className="text-lg font-semibold mb-2">Premium Feature 💜</h3>
@@ -95,7 +95,18 @@ const Pregnancy = () => {
               Track your pregnancy week-by-week with due date, milestones, and a personalized journey.
             </p>
             <UpgradePrompt compact />
+            <Button
+              variant="outline"
+              onClick={enablePreview}
+              className="w-full mt-3 border-primary/30"
+            >
+              ✨ Preview for free (temporary)
+            </Button>
+            <p className="text-[10px] text-muted-foreground mt-2">
+              Temporary access on this device — for trying out the feature.
+            </p>
           </Card>
+
         ) : !savedLmp ? (
           <Card className="p-6 border-primary/20">
             <h3 className="font-semibold mb-2">Let's set up your journey 🌸</h3>
