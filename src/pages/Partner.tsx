@@ -8,10 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Lock } from "lucide-react";
+import { ArrowLeft, Lock, MessageCircle, Mail, Send, Twitter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePremium } from "@/hooks/use-premium";
 import { PremiumFeatureGate } from "@/components/PremiumFeatureGate";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Heart, Copy, Share2, Trash2, Users, Sparkles } from "lucide-react";
 import { differenceInDays, addDays, format } from "date-fns";
 
@@ -165,14 +171,55 @@ const PartnerInner = () => {
     toast({ title: "Copied!", description: `Code ${code} copied to clipboard.` });
   };
 
-  const shareCode = async (code: string) => {
-    const text = `Join me on Cycle Charm as my partner! Use invite code: ${code}`;
+  const buildShareText = (code: string) =>
+    `💞 Join me on Cycle Charm as my partner! Use my invite code: ${code}\n\nDownload: https://cycle-charm-ai.lovable.app`;
+
+  const nativeShare = async (code: string) => {
+    const text = buildShareText(code);
     if (navigator.share) {
-      try { await navigator.share({ title: "Cycle Charm Partner Invite", text }); } catch {}
-    } else {
-      copyCode(code);
+      try {
+        await navigator.share({ title: "Cycle Charm Partner Invite", text });
+        return true;
+      } catch {
+        return false;
+      }
     }
+    return false;
   };
+
+  const shareTo = (platform: string, code: string) => {
+    const text = buildShareText(code);
+    const encoded = encodeURIComponent(text);
+    let url = "";
+    switch (platform) {
+      case "whatsapp":
+        url = `https://wa.me/?text=${encoded}`;
+        break;
+      case "twitter":
+        url = `https://twitter.com/intent/tweet?text=${encoded}`;
+        break;
+      case "telegram":
+        url = `https://t.me/share/url?url=${encodeURIComponent("https://cycle-charm-ai.lovable.app")}&text=${encoded}`;
+        break;
+      case "facebook":
+        url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://cycle-charm-ai.lovable.app")}&quote=${encoded}`;
+        break;
+      case "sms":
+        url = `sms:?body=${encoded}`;
+        break;
+      case "email":
+        url = `mailto:?subject=${encodeURIComponent("Join me on Cycle Charm 💞")}&body=${encoded}`;
+        break;
+      case "snapchat":
+        // Snapchat has no web share intent — copy and open the app
+        copyCode(code);
+        toast({ title: "Copied! 💛", description: "Paste it into Snapchat to share." });
+        url = "https://www.snapchat.com/";
+        break;
+    }
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  };
+
 
   const acceptCode = async () => {
     if (!userId || !codeInput.trim()) return;
@@ -278,9 +325,50 @@ const PartnerInner = () => {
                         <Button size="icon" variant="ghost" onClick={() => copyCode(inv.invite_code)}>
                           <Copy className="w-4 h-4" />
                         </Button>
-                        <Button size="icon" variant="ghost" onClick={() => shareCode(inv.invite_code)}>
-                          <Share2 className="w-4 h-4" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={async (e) => {
+                                // Prefer native share sheet on mobile (gives WhatsApp, Snapchat, etc.)
+                                if (navigator.share) {
+                                  e.preventDefault();
+                                  const ok = await nativeShare(inv.invite_code);
+                                  if (ok) return;
+                                }
+                              }}
+                            >
+                              <Share2 className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={() => shareTo("whatsapp", inv.invite_code)}>
+                              <MessageCircle className="w-4 h-4 mr-2 text-emerald-600" /> WhatsApp
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => shareTo("snapchat", inv.invite_code)}>
+                              <Sparkles className="w-4 h-4 mr-2 text-yellow-500" /> Snapchat
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => shareTo("twitter", inv.invite_code)}>
+                              <Twitter className="w-4 h-4 mr-2 text-sky-500" /> Twitter / X
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => shareTo("telegram", inv.invite_code)}>
+                              <Send className="w-4 h-4 mr-2 text-sky-600" /> Telegram
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => shareTo("facebook", inv.invite_code)}>
+                              <Share2 className="w-4 h-4 mr-2 text-blue-600" /> Facebook
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => shareTo("sms", inv.invite_code)}>
+                              <MessageCircle className="w-4 h-4 mr-2" /> SMS / Messages
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => shareTo("email", inv.invite_code)}>
+                              <Mail className="w-4 h-4 mr-2" /> Email
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => copyCode(inv.invite_code)}>
+                              <Copy className="w-4 h-4 mr-2" /> Copy code
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </>
                     )}
                     <Button size="icon" variant="ghost" onClick={() => revokeInvite(inv.id)}>
