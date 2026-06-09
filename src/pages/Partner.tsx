@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ArrowLeft, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePremium } from "@/hooks/use-premium";
 import { PremiumFeatureGate } from "@/components/PremiumFeatureGate";
@@ -228,7 +229,10 @@ const PartnerInner = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 pb-20">
-      <div className="max-w-md mx-auto p-4 pt-8">
+      <div className="max-w-md mx-auto p-4 pt-6">
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-2 -ml-2">
+          <ArrowLeft className="w-4 h-4 mr-1" /> Back
+        </Button>
         <div className="flex items-center gap-2 mb-6">
           <Heart className="w-7 h-7 text-primary" />
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -349,6 +353,7 @@ const PREVIEW_KEY = "partner:preview";
 
 const Partner = () => {
   const { isPremium, loading } = usePremium();
+  const navigate = useNavigate();
   const [previewMode, setPreviewMode] = useState<boolean>(
     typeof window !== "undefined" && localStorage.getItem(PREVIEW_KEY) === "1"
   );
@@ -383,20 +388,37 @@ const Partner = () => {
   }
 
   return (
-    <PremiumFeatureGate>
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 pb-20">
       <div className="max-w-md mx-auto p-4 pt-6">
-        <Button
-          variant="outline"
-          onClick={enablePreview}
-          className="w-full border-primary/30"
-        >
-          ✨ Preview Partner Access for free (temporary)
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-2 -ml-2">
+          <ArrowLeft className="w-4 h-4 mr-1" /> Back
         </Button>
-        <p className="text-[10px] text-muted-foreground mt-2 text-center">
-          Temporary access on this device — for trying out the feature.
-        </p>
+        <Card className="p-6 text-center border-primary/20 mt-4">
+          <Lock className="w-12 h-12 mx-auto mb-4 text-primary" />
+          <h3 className="text-lg font-semibold mb-2">Partner Access — Premium</h3>
+          <p className="text-muted-foreground mb-4 text-sm">
+            Share your cycle with your partner so they can support you better.
+          </p>
+          <Button
+            onClick={() => navigate("/subscription")}
+            className="w-full bg-gradient-to-r from-primary to-accent mb-3"
+          >
+            Upgrade Now
+          </Button>
+          <Button
+            variant="outline"
+            onClick={enablePreview}
+            className="w-full border-primary/30"
+          >
+            ✨ Preview for free (temporary)
+          </Button>
+          <p className="text-[10px] text-muted-foreground mt-2">
+            Temporary access on this device — for trying out the feature.
+          </p>
+        </Card>
       </div>
-    </PremiumFeatureGate>
+      <Navigation />
+    </div>
   );
 };
 
