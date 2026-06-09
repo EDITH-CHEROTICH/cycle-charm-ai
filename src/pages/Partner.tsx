@@ -171,14 +171,55 @@ const PartnerInner = () => {
     toast({ title: "Copied!", description: `Code ${code} copied to clipboard.` });
   };
 
-  const shareCode = async (code: string) => {
-    const text = `Join me on Cycle Charm as my partner! Use invite code: ${code}`;
+  const buildShareText = (code: string) =>
+    `💞 Join me on Cycle Charm as my partner! Use my invite code: ${code}\n\nDownload: https://cycle-charm-ai.lovable.app`;
+
+  const nativeShare = async (code: string) => {
+    const text = buildShareText(code);
     if (navigator.share) {
-      try { await navigator.share({ title: "Cycle Charm Partner Invite", text }); } catch {}
-    } else {
-      copyCode(code);
+      try {
+        await navigator.share({ title: "Cycle Charm Partner Invite", text });
+        return true;
+      } catch {
+        return false;
+      }
     }
+    return false;
   };
+
+  const shareTo = (platform: string, code: string) => {
+    const text = buildShareText(code);
+    const encoded = encodeURIComponent(text);
+    let url = "";
+    switch (platform) {
+      case "whatsapp":
+        url = `https://wa.me/?text=${encoded}`;
+        break;
+      case "twitter":
+        url = `https://twitter.com/intent/tweet?text=${encoded}`;
+        break;
+      case "telegram":
+        url = `https://t.me/share/url?url=${encodeURIComponent("https://cycle-charm-ai.lovable.app")}&text=${encoded}`;
+        break;
+      case "facebook":
+        url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://cycle-charm-ai.lovable.app")}&quote=${encoded}`;
+        break;
+      case "sms":
+        url = `sms:?body=${encoded}`;
+        break;
+      case "email":
+        url = `mailto:?subject=${encodeURIComponent("Join me on Cycle Charm 💞")}&body=${encoded}`;
+        break;
+      case "snapchat":
+        // Snapchat has no web share intent — copy and open the app
+        copyCode(code);
+        toast({ title: "Copied! 💛", description: "Paste it into Snapchat to share." });
+        url = "https://www.snapchat.com/";
+        break;
+    }
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  };
+
 
   const acceptCode = async () => {
     if (!userId || !codeInput.trim()) return;
