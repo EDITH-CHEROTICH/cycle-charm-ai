@@ -27,11 +27,16 @@ const MILESTONES: Record<number, string> = {
   40: "Due date! Baby is ready to meet you 👶💜",
 };
 
+const PREVIEW_KEY = "pregnancy:preview";
+
 const Pregnancy = () => {
   const { isPremium, loading: premiumLoading } = usePremium();
   const navigate = useNavigate();
   const [lmp, setLmp] = useState<string>("");
   const [savedLmp, setSavedLmp] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState<boolean>(
+    typeof window !== "undefined" && localStorage.getItem(PREVIEW_KEY) === "1"
+  );
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -40,6 +45,17 @@ const Pregnancy = () => {
       if (!data.session) navigate("/auth");
     });
   }, [navigate]);
+
+  const enablePreview = () => {
+    localStorage.setItem(PREVIEW_KEY, "1");
+    setPreviewMode(true);
+  };
+
+  const disablePreview = () => {
+    localStorage.removeItem(PREVIEW_KEY);
+    setPreviewMode(false);
+  };
+
 
   const handleSave = () => {
     if (!lmp) return;
