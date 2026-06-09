@@ -8,10 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Lock } from "lucide-react";
+import { ArrowLeft, Lock, MessageCircle, Mail, Send, Twitter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePremium } from "@/hooks/use-premium";
 import { PremiumFeatureGate } from "@/components/PremiumFeatureGate";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Heart, Copy, Share2, Trash2, Users, Sparkles } from "lucide-react";
 import { differenceInDays, addDays, format } from "date-fns";
 
