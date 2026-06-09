@@ -345,15 +345,57 @@ const PartnerInner = () => {
   );
 };
 
+const PREVIEW_KEY = "partner:preview";
+
 const Partner = () => {
   const { isPremium, loading } = usePremium();
-  // Partner view (accepting a code or seeing linked owners) is allowed for everyone;
-  // only generating new invites is premium. Wrap whole owner panel in gate inline above.
-  // Simpler: gate the entire page so this stays a premium feature as marketed.
+  const [previewMode, setPreviewMode] = useState<boolean>(
+    typeof window !== "undefined" && localStorage.getItem(PREVIEW_KEY) === "1"
+  );
+
+  const enablePreview = () => {
+    localStorage.setItem(PREVIEW_KEY, "1");
+    setPreviewMode(true);
+  };
+  const disablePreview = () => {
+    localStorage.removeItem(PREVIEW_KEY);
+    setPreviewMode(false);
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+
+  if (isPremium || previewMode) {
+    return (
+      <>
+        {!isPremium && previewMode && (
+          <div className="max-w-md mx-auto px-4 pt-3">
+            <div className="flex items-center justify-between gap-2 p-2 rounded-lg border border-primary/30 bg-primary/5 text-xs text-muted-foreground">
+              <span>👀 Preview mode — upgrade to keep Partner Access.</span>
+              <Button size="sm" variant="ghost" onClick={disablePreview} className="h-6 text-xs">
+                Exit
+              </Button>
+            </div>
+          </div>
+        )}
+        <PartnerInner />
+      </>
+    );
+  }
+
   return (
     <PremiumFeatureGate>
-      <PartnerInner />
+      <div className="max-w-md mx-auto p-4 pt-6">
+        <Button
+          variant="outline"
+          onClick={enablePreview}
+          className="w-full border-primary/30"
+        >
+          ✨ Preview Partner Access for free (temporary)
+        </Button>
+        <p className="text-[10px] text-muted-foreground mt-2 text-center">
+          Temporary access on this device — for trying out the feature.
+        </p>
+      </div>
     </PremiumFeatureGate>
   );
 };
