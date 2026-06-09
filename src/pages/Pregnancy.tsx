@@ -27,11 +27,16 @@ const MILESTONES: Record<number, string> = {
   40: "Due date! Baby is ready to meet you 👶💜",
 };
 
+const PREVIEW_KEY = "pregnancy:preview";
+
 const Pregnancy = () => {
   const { isPremium, loading: premiumLoading } = usePremium();
   const navigate = useNavigate();
   const [lmp, setLmp] = useState<string>("");
   const [savedLmp, setSavedLmp] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState<boolean>(
+    typeof window !== "undefined" && localStorage.getItem(PREVIEW_KEY) === "1"
+  );
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -40,6 +45,17 @@ const Pregnancy = () => {
       if (!data.session) navigate("/auth");
     });
   }, [navigate]);
+
+  const enablePreview = () => {
+    localStorage.setItem(PREVIEW_KEY, "1");
+    setPreviewMode(true);
+  };
+
+  const disablePreview = () => {
+    localStorage.removeItem(PREVIEW_KEY);
+    setPreviewMode(false);
+  };
+
 
   const handleSave = () => {
     if (!lmp) return;
@@ -71,7 +87,7 @@ const Pregnancy = () => {
           </h1>
         </div>
 
-        {!isPremium ? (
+        {!isPremium && !previewMode ? (
           <Card className="p-6 border-primary/20 text-center">
             <Lock className="w-12 h-12 mx-auto mb-4 text-primary" />
             <h3 className="text-lg font-semibold mb-2">Premium Feature 💜</h3>
@@ -79,7 +95,18 @@ const Pregnancy = () => {
               Track your pregnancy week-by-week with due date, milestones, and a personalized journey.
             </p>
             <UpgradePrompt compact />
+            <Button
+              variant="outline"
+              onClick={enablePreview}
+              className="w-full mt-3 border-primary/30"
+            >
+              ✨ Preview for free (temporary)
+            </Button>
+            <p className="text-[10px] text-muted-foreground mt-2">
+              Temporary access on this device — for trying out the feature.
+            </p>
           </Card>
+
         ) : !savedLmp ? (
           <Card className="p-6 border-primary/20">
             <h3 className="font-semibold mb-2">Let's set up your journey 🌸</h3>
@@ -156,9 +183,20 @@ const Pregnancy = () => {
                   </Card>
                 </div>
 
+                {!isPremium && previewMode && (
+                  <Card className="p-3 border-primary/30 bg-primary/5 text-center text-xs text-muted-foreground">
+                    👀 Preview mode active — upgrade to Premium to keep this feature.
+                  </Card>
+                )}
                 <Button variant="outline" onClick={handleReset} className="w-full">
                   Reset Pregnancy Tracking
                 </Button>
+                {!isPremium && previewMode && (
+                  <Button variant="ghost" onClick={disablePreview} className="w-full text-xs">
+                    Exit preview
+                  </Button>
+                )}
+
               </div>
             );
           })()
