@@ -229,7 +229,10 @@ const PartnerInner = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 pb-20">
-      <div className="max-w-md mx-auto p-4 pt-8">
+      <div className="max-w-md mx-auto p-4 pt-6">
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-2 -ml-2">
+          <ArrowLeft className="w-4 h-4 mr-1" /> Back
+        </Button>
         <div className="flex items-center gap-2 mb-6">
           <Heart className="w-7 h-7 text-primary" />
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
