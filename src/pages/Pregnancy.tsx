@@ -183,9 +183,20 @@ const Pregnancy = () => {
                   </Card>
                 </div>
 
+                {!isPremium && previewMode && (
+                  <Card className="p-3 border-primary/30 bg-primary/5 text-center text-xs text-muted-foreground">
+                    👀 Preview mode active — upgrade to Premium to keep this feature.
+                  </Card>
+                )}
                 <Button variant="outline" onClick={handleReset} className="w-full">
                   Reset Pregnancy Tracking
                 </Button>
+                {!isPremium && previewMode && (
+                  <Button variant="ghost" onClick={disablePreview} className="w-full text-xs">
+                    Exit preview
+                  </Button>
+                )}
+
               </div>
             );
           })()
