@@ -90,7 +90,13 @@ const CalendarView = () => {
           </TabsList>
 
           {visitedTabs.has("calendar") && (
-            <TabsContent value="calendar" className="space-y-4" forceMount hidden={activeTab !== "calendar"}>
+            <TabsContent
+              key={`calendar-${activeTab === "calendar"}`}
+              value="calendar"
+              className="space-y-4 data-[state=active]:animate-fade-in"
+              forceMount
+              hidden={activeTab !== "calendar"}
+            >
               <EnhancedCalendar
                 onDateSelect={handleDateSelect}
                 selectedDate={selectedDate}
@@ -103,7 +109,13 @@ const CalendarView = () => {
           )}
 
           {visitedTabs.has("log") && (
-            <TabsContent value="log" className="space-y-4" forceMount hidden={activeTab !== "log"}>
+            <TabsContent
+              key={`log-${activeTab === "log"}`}
+              value="log"
+              className="space-y-4 data-[state=active]:animate-fade-in"
+              forceMount
+              hidden={activeTab !== "log"}
+            >
               <PeriodLogger onPeriodLogged={handlePeriodLogged} />
               <DailyLogger
                 selectedDate={selectedDate}
@@ -113,14 +125,26 @@ const CalendarView = () => {
           )}
 
           {visitedTabs.has("insights") && (
-            <TabsContent value="insights" className="space-y-4" forceMount hidden={activeTab !== "insights"}>
+            <TabsContent
+              key={`insights-${activeTab === "insights"}`}
+              value="insights"
+              className="space-y-4 data-[state=active]:animate-fade-in"
+              forceMount
+              hidden={activeTab !== "insights"}
+            >
               <CycleInsights refreshTrigger={refreshTrigger} />
               <CycleComparison />
             </TabsContent>
           )}
 
           {visitedTabs.has("history") && (
-            <TabsContent value="history" forceMount hidden={activeTab !== "history"}>
+            <TabsContent
+              key={`history-${activeTab === "history"}`}
+              value="history"
+              className="data-[state=active]:animate-fade-in"
+              forceMount
+              hidden={activeTab !== "history"}
+            >
               <PeriodHistory refreshTrigger={refreshTrigger} />
             </TabsContent>
           )}
