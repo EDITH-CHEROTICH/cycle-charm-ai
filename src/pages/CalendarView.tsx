@@ -16,8 +16,20 @@ import { usePremium } from "@/hooks/use-premium";
 const CalendarView = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [activeTab, setActiveTab] = useState<string>("calendar");
+  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(new Set(["calendar"]));
   const navigate = useNavigate();
   const { isPremium } = usePremium();
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setVisitedTabs((prev) => {
+      if (prev.has(value)) return prev;
+      const next = new Set(prev);
+      next.add(value);
+      return next;
+    });
+  };
 
   // Show banner ad and prepare interstitial for free users
   useEffect(() => {
@@ -61,7 +73,7 @@ const CalendarView = () => {
           Your Cycle 📅
         </h1>
 
-        <Tabs defaultValue="calendar" className="space-y-4">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="calendar" className="text-xs">
               <Calendar className="w-3 h-3 mr-1" /> Calendar
@@ -77,33 +89,41 @@ const CalendarView = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="calendar" className="space-y-4">
-            <EnhancedCalendar 
-              onDateSelect={handleDateSelect}
-              selectedDate={selectedDate}
-            />
-            <DailyLogger 
-              selectedDate={selectedDate}
-              onLogSaved={() => setRefreshTrigger(prev => prev + 1)}
-            />
-          </TabsContent>
+          {visitedTabs.has("calendar") && (
+            <TabsContent value="calendar" className="space-y-4" forceMount hidden={activeTab !== "calendar"}>
+              <EnhancedCalendar
+                onDateSelect={handleDateSelect}
+                selectedDate={selectedDate}
+              />
+              <DailyLogger
+                selectedDate={selectedDate}
+                onLogSaved={() => setRefreshTrigger((prev) => prev + 1)}
+              />
+            </TabsContent>
+          )}
 
-          <TabsContent value="log" className="space-y-4">
-            <PeriodLogger onPeriodLogged={handlePeriodLogged} />
-            <DailyLogger 
-              selectedDate={selectedDate}
-              onLogSaved={() => setRefreshTrigger(prev => prev + 1)}
-            />
-          </TabsContent>
+          {visitedTabs.has("log") && (
+            <TabsContent value="log" className="space-y-4" forceMount hidden={activeTab !== "log"}>
+              <PeriodLogger onPeriodLogged={handlePeriodLogged} />
+              <DailyLogger
+                selectedDate={selectedDate}
+                onLogSaved={() => setRefreshTrigger((prev) => prev + 1)}
+              />
+            </TabsContent>
+          )}
 
-          <TabsContent value="insights" className="space-y-4">
-            <CycleInsights refreshTrigger={refreshTrigger} />
-            <CycleComparison />
-          </TabsContent>
+          {visitedTabs.has("insights") && (
+            <TabsContent value="insights" className="space-y-4" forceMount hidden={activeTab !== "insights"}>
+              <CycleInsights refreshTrigger={refreshTrigger} />
+              <CycleComparison />
+            </TabsContent>
+          )}
 
-          <TabsContent value="history">
-            <PeriodHistory refreshTrigger={refreshTrigger} />
-          </TabsContent>
+          {visitedTabs.has("history") && (
+            <TabsContent value="history" forceMount hidden={activeTab !== "history"}>
+              <PeriodHistory refreshTrigger={refreshTrigger} />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
       <Navigation />
