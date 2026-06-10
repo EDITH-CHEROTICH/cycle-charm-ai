@@ -16,8 +16,20 @@ import { usePremium } from "@/hooks/use-premium";
 const CalendarView = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [activeTab, setActiveTab] = useState<string>("calendar");
+  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(new Set(["calendar"]));
   const navigate = useNavigate();
   const { isPremium } = usePremium();
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setVisitedTabs((prev) => {
+      if (prev.has(value)) return prev;
+      const next = new Set(prev);
+      next.add(value);
+      return next;
+    });
+  };
 
   // Show banner ad and prepare interstitial for free users
   useEffect(() => {
