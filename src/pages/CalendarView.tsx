@@ -73,7 +73,7 @@ const CalendarView = () => {
           Your Cycle 📅
         </h1>
 
-        <Tabs defaultValue="calendar" className="space-y-4">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="calendar" className="text-xs">
               <Calendar className="w-3 h-3 mr-1" /> Calendar
@@ -89,33 +89,41 @@ const CalendarView = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="calendar" className="space-y-4">
-            <EnhancedCalendar 
-              onDateSelect={handleDateSelect}
-              selectedDate={selectedDate}
-            />
-            <DailyLogger 
-              selectedDate={selectedDate}
-              onLogSaved={() => setRefreshTrigger(prev => prev + 1)}
-            />
-          </TabsContent>
+          {visitedTabs.has("calendar") && (
+            <TabsContent value="calendar" className="space-y-4" forceMount hidden={activeTab !== "calendar"}>
+              <EnhancedCalendar
+                onDateSelect={handleDateSelect}
+                selectedDate={selectedDate}
+              />
+              <DailyLogger
+                selectedDate={selectedDate}
+                onLogSaved={() => setRefreshTrigger((prev) => prev + 1)}
+              />
+            </TabsContent>
+          )}
 
-          <TabsContent value="log" className="space-y-4">
-            <PeriodLogger onPeriodLogged={handlePeriodLogged} />
-            <DailyLogger 
-              selectedDate={selectedDate}
-              onLogSaved={() => setRefreshTrigger(prev => prev + 1)}
-            />
-          </TabsContent>
+          {visitedTabs.has("log") && (
+            <TabsContent value="log" className="space-y-4" forceMount hidden={activeTab !== "log"}>
+              <PeriodLogger onPeriodLogged={handlePeriodLogged} />
+              <DailyLogger
+                selectedDate={selectedDate}
+                onLogSaved={() => setRefreshTrigger((prev) => prev + 1)}
+              />
+            </TabsContent>
+          )}
 
-          <TabsContent value="insights" className="space-y-4">
-            <CycleInsights refreshTrigger={refreshTrigger} />
-            <CycleComparison />
-          </TabsContent>
+          {visitedTabs.has("insights") && (
+            <TabsContent value="insights" className="space-y-4" forceMount hidden={activeTab !== "insights"}>
+              <CycleInsights refreshTrigger={refreshTrigger} />
+              <CycleComparison />
+            </TabsContent>
+          )}
 
-          <TabsContent value="history">
-            <PeriodHistory refreshTrigger={refreshTrigger} />
-          </TabsContent>
+          {visitedTabs.has("history") && (
+            <TabsContent value="history" forceMount hidden={activeTab !== "history"}>
+              <PeriodHistory refreshTrigger={refreshTrigger} />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
       <Navigation />
