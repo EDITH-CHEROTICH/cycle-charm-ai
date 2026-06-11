@@ -163,6 +163,24 @@ const Profile = () => {
           </Card>
         )}
 
+        {!premiumLoading && isPremium && (
+          <Card className="p-4 mb-4 border-primary/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Crown className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="font-medium">Premium Active</p>
+                  <p className="text-xs text-muted-foreground">Manage your subscription</p>
+                </div>
+              </div>
+              <Button onClick={openManageSubscription} size="sm" variant="outline">
+                <CreditCard className="w-4 h-4 mr-2" />
+                Manage
+              </Button>
+            </div>
+          </Card>
+        )}
+
         <Card className="p-6 border-primary/20 mb-4">
           <div className="space-y-4">
             <div>
