@@ -19,7 +19,7 @@ const Subscription = () => {
         </Button>
         
         <SubscriptionPaywall
-          onSubscribe={() => navigate('/dashboard')}
+          onSubscribe={() => navigate('/')}
         />
       </div>
     </div>

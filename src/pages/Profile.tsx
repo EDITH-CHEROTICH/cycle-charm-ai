@@ -12,7 +12,8 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { usePremium } from "@/hooks/use-premium";
 import { useTheme } from "@/hooks/use-theme";
-import { Crown, Sparkles, Shield, FileText, Bell, LogOut, Moon, Sun, Baby, Heart } from "lucide-react";
+import { Crown, Sparkles, Shield, FileText, Bell, LogOut, Moon, Sun, Baby, Heart, CreditCard } from "lucide-react";
+import { openManageSubscription, logoutRevenueCatUser } from "@/lib/revenue-cat";
 import DeleteAccountDialog from "@/components/DeleteAccountDialog";
 import { ExportData } from "@/components/ExportData";
 import { clearCachedData } from "@/hooks/use-offline";
@@ -117,6 +118,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
     clearCachedData();
+    await logoutRevenueCatUser();
     await supabase.auth.signOut();
     navigate("/auth");
   };
@@ -156,6 +158,24 @@ const Profile = () => {
                 className="bg-gradient-to-r from-primary to-accent"
               >
                 Upgrade
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {!premiumLoading && isPremium && (
+          <Card className="p-4 mb-4 border-primary/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Crown className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="font-medium">Premium Active</p>
+                  <p className="text-xs text-muted-foreground">Manage your subscription</p>
+                </div>
+              </div>
+              <Button onClick={openManageSubscription} size="sm" variant="outline">
+                <CreditCard className="w-4 h-4 mr-2" />
+                Manage
               </Button>
             </div>
           </Card>
