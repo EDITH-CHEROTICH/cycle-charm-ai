@@ -37,19 +37,12 @@ const DeleteAccountDialog = ({ onDeleted }: DeleteAccountDialogProps) => {
 
     setIsDeleting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
 
-      // Delete user data from all tables
-      await Promise.all([
-        supabase.from("symptoms").delete().eq("user_id", user.id),
-        supabase.from("daily_logs").delete().eq("user_id", user.id),
-        supabase.from("period_logs").delete().eq("user_id", user.id),
-        supabase.from("cycle_data").delete().eq("user_id", user.id),
-        supabase.from("profiles").delete().eq("id", user.id),
-      ]);
+      const { error } = await supabase.functions.invoke("delete-account");
+      if (error) throw error;
 
-      // Sign out and trigger deletion callback
       await supabase.auth.signOut();
 
       toast({

@@ -34,15 +34,8 @@ const DeleteAccount = () => {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session && session.user.email === email) {
-        // User is logged in with the same email — delete their data
-        const userId = session.user.id;
-        await Promise.all([
-          supabase.from("symptoms").delete().eq("user_id", userId),
-          supabase.from("daily_logs").delete().eq("user_id", userId),
-          supabase.from("period_logs").delete().eq("user_id", userId),
-          supabase.from("cycle_data").delete().eq("user_id", userId),
-          supabase.from("profiles").delete().eq("id", userId),
-        ]);
+        // Logged-in user requesting their own deletion — fully delete via edge function
+        await supabase.functions.invoke("delete-account");
         await supabase.auth.signOut();
       }
 
