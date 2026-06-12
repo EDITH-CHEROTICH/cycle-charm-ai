@@ -38,9 +38,19 @@ Deno.serve(async (req) => {
     }
 
     const userId = userData.user.id;
+    const userEmail = userData.user.email ?? "(no email)";
+    const requestId = crypto.randomUUID();
+    const startedAt = new Date().toISOString();
     const admin = createClient(supabaseUrl, serviceKey);
 
-    console.log(`[delete-account] Deleting data for user: ${userId}`);
+    console.log(JSON.stringify({
+      tag: "delete-account",
+      event: "start",
+      requestId,
+      userId,
+      userEmail,
+      startedAt,
+    }));
 
     // Delete all user data and verify each result
     const deletions = await Promise.all([
@@ -58,7 +68,13 @@ Deno.serve(async (req) => {
       .filter(Boolean);
 
     if (failures.length > 0) {
-      console.error("[delete-account] Table deletion failures:", failures);
+      console.error(JSON.stringify({
+        tag: "delete-account",
+        event: "table_failures",
+        requestId,
+        userId,
+        failures,
+      }));
       return new Response(
         JSON.stringify({ error: "Failed to delete user data", failures }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -68,14 +84,32 @@ Deno.serve(async (req) => {
     // Delete the auth user
     const { error: delErr } = await admin.auth.admin.deleteUser(userId);
     if (delErr) {
-      console.error("Auth delete error:", delErr);
+      console.error(JSON.stringify({
+        tag: "delete-account",
+        event: "auth_delete_failed",
+        requestId,
+        userId,
+        error: delErr.message,
+      }));
       return new Response(JSON.stringify({ error: delErr.message }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(JSON.stringify({ success: true }), {
+    const completedAt = new Date().toISOString();
+    console.log(JSON.stringify({
+      tag: "delete-account",
+      event: "success",
+      requestId,
+      userId,
+      userEmail,
+      startedAt,
+      completedAt,
+      tablesCleared: tables,
+    }));
+
+    return new Response(JSON.stringify({ success: true, requestId, completedAt }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
