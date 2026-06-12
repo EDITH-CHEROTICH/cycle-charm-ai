@@ -37,7 +37,10 @@ const DeleteAccount = () => {
 
       if (session && session.user.email === email) {
         // Logged-in user requesting their own deletion — fully delete via edge function
-        await supabase.functions.invoke("delete-account");
+        const { error } = await supabase.functions.invoke("delete-account");
+        if (error) throw error;
+        await cancelAllNotifications();
+        clearCachedData();
         await supabase.auth.signOut();
       }
 
