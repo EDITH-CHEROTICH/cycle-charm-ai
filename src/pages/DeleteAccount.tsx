@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { clearCachedData } from "@/hooks/use-offline";
+import { cancelAllNotifications } from "@/lib/notifications";
 import { Trash2, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -35,7 +37,10 @@ const DeleteAccount = () => {
 
       if (session && session.user.email === email) {
         // Logged-in user requesting their own deletion — fully delete via edge function
-        await supabase.functions.invoke("delete-account");
+        const { error } = await supabase.functions.invoke("delete-account");
+        if (error) throw error;
+        await cancelAllNotifications();
+        clearCachedData();
         await supabase.auth.signOut();
       }
 

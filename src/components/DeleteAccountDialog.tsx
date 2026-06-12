@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { clearCachedData } from "@/hooks/use-offline";
+import { cancelAllNotifications } from "@/lib/notifications";
 import { Trash2 } from "lucide-react";
 
 interface DeleteAccountDialogProps {
@@ -43,6 +45,9 @@ const DeleteAccountDialog = ({ onDeleted }: DeleteAccountDialogProps) => {
       const { error } = await supabase.functions.invoke("delete-account");
       if (error) throw error;
 
+      // Clean up device-side state
+      await cancelAllNotifications();
+      clearCachedData();
       await supabase.auth.signOut();
 
       toast({
