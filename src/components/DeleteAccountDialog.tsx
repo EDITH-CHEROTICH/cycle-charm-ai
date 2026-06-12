@@ -45,6 +45,9 @@ const DeleteAccountDialog = ({ onDeleted }: DeleteAccountDialogProps) => {
       const { error } = await supabase.functions.invoke("delete-account");
       if (error) throw error;
 
+      // Clean up device-side state
+      await cancelAllNotifications();
+      clearCachedData();
       await supabase.auth.signOut();
 
       toast({
