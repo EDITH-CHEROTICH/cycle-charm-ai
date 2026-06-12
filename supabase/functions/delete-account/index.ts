@@ -40,8 +40,10 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
     const admin = createClient(supabaseUrl, serviceKey);
 
-    // Delete all user data
-    await Promise.all([
+    console.log(`[delete-account] Deleting data for user: ${userId}`);
+
+    // Delete all user data and verify each result
+    const deletions = await Promise.all([
       admin.from("symptoms").delete().eq("user_id", userId),
       admin.from("daily_logs").delete().eq("user_id", userId),
       admin.from("period_logs").delete().eq("user_id", userId),
@@ -49,6 +51,19 @@ Deno.serve(async (req) => {
       admin.from("partner_links").delete().or(`owner_id.eq.${userId},partner_id.eq.${userId}`),
       admin.from("profiles").delete().eq("id", userId),
     ]);
+
+    const tables = ["symptoms", "daily_logs", "period_logs", "cycle_data", "partner_links", "profiles"];
+    const failures = deletions
+      .map((r, i) => (r.error ? { table: tables[i], error: r.error.message } : null))
+      .filter(Boolean);
+
+    if (failures.length > 0) {
+      console.error("[delete-account] Table deletion failures:", failures);
+      return new Response(
+        JSON.stringify({ error: "Failed to delete user data", failures }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Delete the auth user
     const { error: delErr } = await admin.auth.admin.deleteUser(userId);
